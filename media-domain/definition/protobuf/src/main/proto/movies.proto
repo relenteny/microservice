@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "common.proto";
+
+option java_outer_classname = "MoviesProto";
+option java_package = "com.solutechconsulting.media.model.protobuf";
+
+message GrpcMovie {
+  string id = 1;
+  string title = 2;
+  string studio = 3;
+  string content_rating = 4;
+  int32 year = 5;
+  double critics_rating = 6;
+  string summary = 7;
+  google.protobuf.Timestamp release_date = 8;
+  string genres = 9;
+  string tagline = 10;
+  google.protobuf.Duration duration = 11;
+  string directors = 12;
+  string roles = 13;
+  double audience_rating = 14;
+}
+
+service Movies {
+  rpc Get (google.protobuf.Empty) returns (stream GrpcMovie);
+  rpc Search (media.protobuf.SearchRequest) returns (stream GrpcMovie);
+}

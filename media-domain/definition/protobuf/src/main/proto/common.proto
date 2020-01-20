@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package media.protobuf;
+
+option java_outer_classname = "CommonProto";
+option java_package = "com.solutechconsulting.media.model.protobuf";
+
+message SearchRequest {
+  string searchText = 1;
+}

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "common.proto";
+
+option java_outer_classname = "TelevisionShowsProto";
+option java_package = "com.solutechconsulting.media.model.protobuf";
+
+message GrpcTelevisionShow {
+  string id = 1;
+  string title = 2;
+  string series_title = 3;
+  int32 year = 4;
+  int32 season = 5;
+  int32 episode = 6;
+  string content_rating = 7;
+  string summary = 8;
+  double rating = 9;
+  string studio = 10;
+  google.protobuf.Timestamp originally_aired = 11;
+  google.protobuf.Duration duration = 12;
+  string directors = 13;
+  string writers = 14;
+}
+
+message EpisodesRequest {
+  string seriesTitle = 1;
+  int32 season = 2;
+}
+
+message SeriesRequest {
+  string seriesTitle = 1;
+}
+
+service TelevisionShows {
+  rpc Get (google.protobuf.Empty) returns (stream GrpcTelevisionShow);
+  rpc Search (media.protobuf.SearchRequest) returns (stream GrpcTelevisionShow);
+  rpc Episodes (EpisodesRequest) returns (stream GrpcTelevisionShow);
+  rpc Series (SeriesRequest) returns (stream GrpcTelevisionShow);
+}
