@@ -62,7 +62,7 @@ public class RestMediaService extends AbstractMediaService {
 
   public static final String SERVICE_NAME = "RestMediaService";
 
-  private Logger logger = LoggerFactory.getLogger(RestMediaService.class.getName());
+  private final Logger logger = LoggerFactory.getLogger(RestMediaService.class.getName());
 
   private Client client;
   private WebTarget getMoviesTarget;
@@ -98,7 +98,7 @@ public class RestMediaService extends AbstractMediaService {
 
   @Override
   protected Flowable<Movie> doGetMovies() {
-    return getStreamResult(getMoviesTarget, new TypeReference<Movie>() {
+    return getStreamResult(getMoviesTarget, new TypeReference<>() {
     });
   }
 
@@ -106,20 +106,20 @@ public class RestMediaService extends AbstractMediaService {
   protected Flowable<Movie> doSearchMovies(String movieText) {
     return getStreamResult(
         searchMoviesTarget.resolveTemplate(Parameters.Common.SEARCH_TEXT, movieText),
-        new TypeReference<Movie>() {
+        new TypeReference<>() {
         });
   }
 
   @Override
   protected Flowable<Audio> doGetAudio() {
-    return getStreamResult(getAudioTarget, new TypeReference<Audio>() {
+    return getStreamResult(getAudioTarget, new TypeReference<>() {
     });
   }
 
   @Override
   protected Flowable<Audio> doGetAudioTracks(String albumTitle) {
     return getStreamResult(tracksTarget.resolveTemplate(Parameters.Audio.ALBUM_TITLE, albumTitle),
-        new TypeReference<Audio>() {
+        new TypeReference<>() {
         });
   }
 
@@ -127,13 +127,13 @@ public class RestMediaService extends AbstractMediaService {
   protected Flowable<Audio> doSearchAudio(String audioText) {
     return getStreamResult(
         searchAudioTarget.resolveTemplate(Parameters.Common.SEARCH_TEXT, audioText),
-        new TypeReference<Audio>() {
+        new TypeReference<>() {
         });
   }
 
   @Override
   protected Flowable<TelevisionShow> doGetTelevisionShows() {
-    return getStreamResult(getShowsTarget, new TypeReference<TelevisionShow>() {
+    return getStreamResult(getShowsTarget, new TypeReference<>() {
     });
 
   }
@@ -142,7 +142,7 @@ public class RestMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doSearchTelevisionShows(String showText) {
     return getStreamResult(
         searchShowsTarget.resolveTemplate(Parameters.Common.SEARCH_TEXT, showText),
-        new TypeReference<TelevisionShow>() {
+        new TypeReference<>() {
         });
   }
 
@@ -150,7 +150,7 @@ public class RestMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doGetEpisodes(String seriesTitle, int season) {
     return getStreamResult(
         episodesTarget.resolveTemplate(Parameters.Shows.SERIES_TITLE, seriesTitle).resolveTemplate(
-            Parameters.Shows.SEASON, season), new TypeReference<TelevisionShow>() {
+            Parameters.Shows.SEASON, season), new TypeReference<>() {
         });
   }
 
@@ -158,7 +158,7 @@ public class RestMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doGetSeries(String seriesTitle) {
     return getStreamResult(
         seriesTarget.resolveTemplate(Parameters.Shows.SERIES_TITLE, seriesTitle),
-        new TypeReference<TelevisionShow>() {
+        new TypeReference<>() {
         });
   }
 

@@ -59,7 +59,7 @@ public class GrpcMediaService extends AbstractMediaService {
 
   public static final String SERVICE_NAME = "GrpcMediaService";
 
-  private Logger logger = LoggerFactory.getLogger(GrpcMediaService.class.getName());
+  private final Logger logger = LoggerFactory.getLogger(GrpcMediaService.class.getName());
   private ManagedChannel channel;
 
   @Inject

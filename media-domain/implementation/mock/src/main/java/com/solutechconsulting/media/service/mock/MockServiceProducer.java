@@ -49,7 +49,7 @@ import javax.transaction.Transactional;
 @Priority(Interceptor.Priority.APPLICATION + 10)
 public class MockServiceProducer {
 
-  private Logger logger = LoggerFactory.getLogger(MockServiceProducer.class.getName());
+  private final Logger logger = LoggerFactory.getLogger(MockServiceProducer.class.getName());
 
   @ConfigProperty(name = "mediaservice.mock.type", defaultValue = "simple")
   String serviceType;

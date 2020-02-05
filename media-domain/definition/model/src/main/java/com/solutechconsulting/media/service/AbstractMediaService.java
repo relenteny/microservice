@@ -50,7 +50,7 @@ import javax.inject.Inject;
  */
 public abstract class AbstractMediaService implements MediaService {
 
-  private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
   private Timer getMoviesTimer;
   private Timer searchMoviesTimer;

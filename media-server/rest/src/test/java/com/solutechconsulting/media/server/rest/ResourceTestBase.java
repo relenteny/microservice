@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Assertions;
 
 public class ResourceTestBase {
 
-  protected static String URL_PREFIX = "http://localhost:8081";
+  protected static final String URL_PREFIX = "http://localhost:8081";
 
   @Inject
   ObjectMapper objectMapper;

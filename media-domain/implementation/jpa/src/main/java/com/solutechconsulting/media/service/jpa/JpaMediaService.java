@@ -52,7 +52,7 @@ public class JpaMediaService extends AbstractMediaService {
 
   public static final String SERVICE_NAME = "JpaMediaService";
 
-  private Logger logger = LoggerFactory.getLogger(JpaMediaService.class.getName());
+  private final Logger logger = LoggerFactory.getLogger(JpaMediaService.class.getName());
 
   @Inject
   EntityManager entityManager;
@@ -222,10 +222,6 @@ public class JpaMediaService extends AbstractMediaService {
 
     return observable.toFlowable(BackpressureStrategy.BUFFER)
         .map(TelevisionShowEntity::getTelevisionShow);
-  }
-
-  protected EntityManager getEntityManager() {
-    return entityManager;
   }
 
   @Override
