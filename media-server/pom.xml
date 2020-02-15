@@ -39,7 +39,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <postgresql.version>42.2.9</postgresql.version>
+    <postgresql.version>42.2.10</postgresql.version>
   </properties>
 
   <modules>
@@ -93,7 +93,7 @@
       <id>mock</id>
       <activation>
         <property>
-          <name>mediaservice.type</name>
+          <name>service.type</name>
           <value>mock</value>
         </property>
       </activation>
@@ -120,7 +120,7 @@
       <id>prod</id>
       <activation>
         <property>
-          <name>mediaservice.type</name>
+          <name>service.type</name>
           <value>production</value>
         </property>
       </activation>
