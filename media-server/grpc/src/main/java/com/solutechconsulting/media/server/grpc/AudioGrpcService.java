@@ -27,105 +27,95 @@ import com.google.protobuf.Empty;
 import com.solutechconsulting.media.model.Audio;
 import com.solutechconsulting.media.model.protobuf.AudioGrpc;
 import com.solutechconsulting.media.model.protobuf.AudioProto;
+import com.solutechconsulting.media.model.protobuf.AudioProto.GrpcAudio;
 import com.solutechconsulting.media.model.protobuf.CommonProto;
+import com.solutechconsulting.media.model.protobuf.MutinyAudioGrpc;
 import com.solutechconsulting.media.service.MediaService;
 import io.reactivex.Flowable;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Vertx;
-import io.vertx.core.streams.Pump;
-import io.vertx.grpc.GrpcWriteStream;
-import io.vertx.reactivex.FlowableHelper;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.converters.multi.MultiRxConverters;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetadataBuilder;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.Timer;
+import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Provides the gRPC implementation of the {@link MediaService} audio methods as defined in {@link
- * AudioGrpc}. The class extends and leverages the generated Vert.x base gRPC class.
+ * AudioGrpc}. The class extends and leverages the generated Mutiny base gRPC class.
  */
-public class AudioGrpcService extends AudioGrpc.AudioVertxImplBase {
+@Singleton
+public class AudioGrpcService extends MutinyAudioGrpc.AudioImplBase {
 
   private static final Logger logger = LoggerFactory.getLogger(AudioGrpcService.class.getName());
 
-  private Vertx vertx;
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
 
-  private MediaService mediaService;
+  @Inject
+  MediaService mediaService;
   private MetricRegistry metricRegistry;
 
   private Timer getAudioTimer;
   private Timer searchAudioTimer;
   private Timer getAudioTracksTimer;
 
-  public AudioGrpcService(Vertx vertx, MediaService mediaService, MetricRegistry metricRegistry) {
-    this.mediaService = mediaService;
-    this.metricRegistry = metricRegistry;
-    this.vertx = vertx;
-
-    initializeMetrics();
+  @Override
+  public Multi<GrpcAudio> get(Empty request) {
+    logger.debug("Invoking get...");
+    return convertAudioResults(mediaService.getAudio(), getAudioTimer.time())
+        .runSubscriptionOn(executorService);
   }
 
   @Override
-  public void get(Empty request, GrpcWriteStream<AudioProto.GrpcAudio> response) {
-    vertx.executeBlocking(promise -> {
-      logger.debug("Invoking get...");
-      streamAudioResults(mediaService.getAudio(), response, getAudioTimer.time());
-      logger.debug("get stream has started.");
-    }, AsyncResult::succeeded);
+  public Multi<GrpcAudio> search(CommonProto.SearchRequest request) {
+    logger.debug("Invoking search... Search text: {}", request.getSearchText());
+    return convertAudioResults(mediaService.searchAudio(request.getSearchText()),
+        searchAudioTimer.time()).runSubscriptionOn(executorService);
   }
 
   @Override
-  public void search(CommonProto.SearchRequest request,
-      GrpcWriteStream<AudioProto.GrpcAudio> response) {
-    vertx.executeBlocking(promise -> {
-      logger.debug("Invoking search... Search text: {}", request.getSearchText());
-      streamAudioResults(mediaService.searchAudio(request.getSearchText()), response,
-          searchAudioTimer.time());
-      logger.debug("search stream has started.");
-    }, AsyncResult::succeeded);
+  public Multi<GrpcAudio> tracks(AudioProto.TracksRequest request) {
+    logger.debug("Invoking tracks... Album title: {}", request.getAlbumTitle());
+    return convertAudioResults(mediaService.getAudioTracks(request.getAlbumTitle()),
+        getAudioTracksTimer.time()).runSubscriptionOn(executorService);
   }
 
-  @Override
-  public void tracks(AudioProto.TracksRequest request,
-      GrpcWriteStream<AudioProto.GrpcAudio> response) {
-    vertx.executeBlocking(promise -> {
-      logger.debug("Invoking tracks... Album title: {}", request.getAlbumTitle());
-      streamAudioResults(mediaService.getAudioTracks(request.getAlbumTitle()), response,
-          getAudioTracksTimer.time());
-      logger.debug("tracks stream has started.");
-    }, AsyncResult::succeeded);
-  }
-
-  protected void streamAudioResults(Flowable<Audio> flowable,
-      GrpcWriteStream<AudioProto.GrpcAudio> response,
+  protected Multi<GrpcAudio> convertAudioResults(Flowable<Audio> flowable,
       Timer.Context timerContext) {
-    Pump pump =
-        Pump.pump(FlowableHelper.toReadStream(flowable.doOnError(throwable -> {
+
+    return Multi.createFrom()
+        .converter(MultiRxConverters.fromFlowable(), flowable.map(
+            this::mapAudio).doOnError(throwable -> {
           logger.error("An error occurred. Terminating stream.", throwable);
           timerContext.stop();
-          response.end();
         }).doOnComplete(() -> {
-          logger.debug("Audio stream complete.");
-          timerContext.stop();
-          response.end();
-        }).map(audio -> {
-          AudioProto.GrpcAudio.Builder builder =
-              AudioProto.GrpcAudio.newBuilder().setId(audio.getId()).setTitle(
-                  audio.getTitle()).setAlbumArtist(audio.getAlbumArtist()).setAlbum(
-                  audio.getAlbum()).setTrackNumber(audio.getTrackNumber());
+              logger.debug("Audio stream complete.");
+              timerContext.stop();
+            }
+        ));
+  }
 
-          audio.getArtist().ifPresent(builder::setArtist);
+  protected GrpcAudio mapAudio(Audio audio) {
+    AudioProto.GrpcAudio.Builder builder =
+        AudioProto.GrpcAudio.newBuilder().setId(audio.getId()).setTitle(
+            audio.getTitle()).setAlbumArtist(audio.getAlbumArtist()).setAlbum(
+            audio.getAlbum()).setTrackNumber(audio.getTrackNumber());
 
-          builder.setDuration(
-              Duration.newBuilder().setSeconds(audio.getDuration().getSeconds()).setNanos(
-                  audio.getDuration().getNano()));
+    audio.getArtist().ifPresent(builder::setArtist);
 
-          return builder.build();
-        })), response);
-    pump.start();
+    builder.setDuration(
+        Duration.newBuilder().setSeconds(audio.getDuration().getSeconds()).setNanos(
+            audio.getDuration().getNano()));
+
+    return builder.build();
   }
 
   /**
@@ -162,5 +152,20 @@ public class AudioGrpcService extends AudioGrpc.AudioVertxImplBase {
     getAudioTracksTimer = metricRegistry.timer(metadata);
 
     logger.debug("Service metrics initialized.");
+  }
+
+  /**
+   * Inject the registry for use by the services. The metric registry is available at the post
+   * construct lifecycle event. The registry is passed to each service implementation to register
+   * and log metrics.
+   *
+   * @param metricRegistry the application metric registry
+   */
+  @PostConstruct
+  @Inject
+  public void initialize(
+      @RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+    this.metricRegistry = metricRegistry;
+    initializeMetrics();
   }
 }

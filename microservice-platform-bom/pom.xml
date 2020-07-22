@@ -6,19 +6,18 @@
 
   <groupId>com.solutechconsulting</groupId>
   <artifactId>microservice-platform-bom</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.6.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
     <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>1.2.0.Final</quarkus.platform.version>
-    <quarkus-plugin.version>1.2.0.Final</quarkus-plugin.version>
+    <quarkus.platform.version>1.6.1.Final</quarkus.platform.version>
+    <quarkus-plugin.version>1.6.1.Final</quarkus-plugin.version>
 
     <immutables.version>2.8.2</immutables.version>
 
-    <protobuf.java.version>3.11.1</protobuf.java.version>
-    <vertx.version>3.8.4</vertx.version>
+    <protobuf.java.version>3.12.2</protobuf.java.version>
 
     <maven.compiler-plugin.version>3.8.1</maven.compiler-plugin.version>
     <maven.compiler.release>11</maven.compiler.release>
@@ -30,7 +29,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <intellij.annotations.version>18.0.0</intellij.annotations.version>
+    <intellij.annotations.version>19.0.0</intellij.annotations.version>
   </properties>
 
   <dependencies>
@@ -64,26 +63,9 @@
       </dependency>
 
       <dependency>
-        <groupId>io.vertx</groupId>
-        <artifactId>vertx-grpc</artifactId>
-        <version>${vertx.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java-util</artifactId>
+        <artifactId>protobuf-java</artifactId>
         <version>${protobuf.java.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>

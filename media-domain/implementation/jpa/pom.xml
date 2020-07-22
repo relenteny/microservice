@@ -30,7 +30,7 @@
   <parent>
     <groupId>com.solutechconsulting.media</groupId>
     <artifactId>domain-implementation</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
   </parent>
   <artifactId>service-jpa</artifactId>
 
@@ -47,11 +47,18 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-hibernate-orm</artifactId>
     </dependency>
-
-    <!-- Temporary as JAXB is no longer included in Java 11 (https://github.com/quarkusio/quarkus/issues/6020) -->
+    <!-- Automatic context propagation for RxJava2 -->
     <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jaxb</artifactId>
+      <groupId>io.smallrye</groupId>
+      <artifactId>smallrye-context-propagation-propagators-rxjava2</artifactId>
+    </dependency>
+    <!--
+    Required if you want transactions extended to the end of methods returning
+    an RxJava2 type.
+     -->
+    <dependency>
+      <groupId>io.smallrye.reactive</groupId>
+      <artifactId>smallrye-reactive-converter-rxjava2</artifactId>
     </dependency>
   </dependencies>
 </project>

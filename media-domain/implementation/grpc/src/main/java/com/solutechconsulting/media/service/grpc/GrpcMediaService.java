@@ -23,33 +23,46 @@
 package com.solutechconsulting.media.service.grpc;
 
 import com.google.protobuf.Empty;
-import com.solutechconsulting.media.model.*;
-import com.solutechconsulting.media.model.protobuf.*;
+import com.solutechconsulting.media.model.Audio;
+import com.solutechconsulting.media.model.ImmutableAudio;
+import com.solutechconsulting.media.model.ImmutableMovie;
+import com.solutechconsulting.media.model.ImmutableTelevisionShow;
+import com.solutechconsulting.media.model.Movie;
+import com.solutechconsulting.media.model.TelevisionShow;
+import com.solutechconsulting.media.model.protobuf.AudioGrpc;
+import com.solutechconsulting.media.model.protobuf.AudioProto;
+import com.solutechconsulting.media.model.protobuf.AudioProto.GrpcAudio;
+import com.solutechconsulting.media.model.protobuf.CommonProto;
+import com.solutechconsulting.media.model.protobuf.MoviesGrpc;
+import com.solutechconsulting.media.model.protobuf.MoviesProto;
+import com.solutechconsulting.media.model.protobuf.MoviesProto.GrpcMovie;
+import com.solutechconsulting.media.model.protobuf.TelevisionShowsGrpc;
+import com.solutechconsulting.media.model.protobuf.TelevisionShowsProto;
+import com.solutechconsulting.media.model.protobuf.TelevisionShowsProto.GrpcTelevisionShow;
 import com.solutechconsulting.media.service.AbstractMediaService;
-import io.grpc.ManagedChannel;
+import io.grpc.Channel;
+import io.grpc.stub.StreamObserver;
+import io.quarkus.grpc.runtime.annotations.GrpcService;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.vertx.core.Vertx;
-import io.vertx.grpc.VertxChannelBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Optional;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A gRPC {@link com.solutechconsulting.media.service.MediaService} implementation intended for use
  * by server-side or other Java client applications. The implementation leverages the generated
  * Vert.x-based gRPC/protobuf classes available in the com.solutechconsulting.media:domain-protobuf
- * module. The service is configured via {@link GrpcMediaServiceConfiguration}.
+ * module. The service is configured via <code>quarkus.grpc.clients</code> properties.
  */
 @ApplicationScoped
 @Named(GrpcMediaService.SERVICE_NAME)
@@ -60,26 +73,33 @@ public class GrpcMediaService extends AbstractMediaService {
   public static final String SERVICE_NAME = "GrpcMediaService";
 
   private final Logger logger = LoggerFactory.getLogger(GrpcMediaService.class.getName());
-  private ManagedChannel channel;
 
   @Inject
-  Vertx vertx;
-
-  @Inject
-  GrpcMediaServiceConfiguration serviceConfiguration;
+  @GrpcService("mediaservice")
+  Channel channel;
 
   @Override
   protected Flowable<Movie> doGetMovies() {
     Observable<MoviesProto.GrpcMovie> observable = Observable.create(emitter -> {
       try {
-        MoviesGrpc.MoviesVertxStub stub = MoviesGrpc.newVertxStub(getChannel());
         Empty empty = Empty.getDefaultInstance();
-        stub.get(empty, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
+        MoviesGrpc.newStub(channel).get(empty, new StreamObserver<>() {
+          @Override
+          public void onNext(GrpcMovie grpcMovie) {
+            emitter.onNext(grpcMovie);
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            logger.error("Error building gRPC doGetMovies stream.", throwable);
+            emitter.onError(throwable);
+          }
+
+          @Override
+          public void onCompleted() {
             logger.debug("gRPC doGetMovies stream complete.");
             emitter.onComplete();
-          });
+          }
         });
       } catch (Exception e) {
         logger.error("Error building gRPC doGetMovies stream.", e);
@@ -94,14 +114,25 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<Movie> doSearchMovies(String movieText) {
     Observable<MoviesProto.GrpcMovie> observable = Observable.create(emitter -> {
       try {
-        MoviesGrpc.MoviesVertxStub stub = MoviesGrpc.newVertxStub(getChannel());
-        stub.search(CommonProto.SearchRequest.newBuilder().setSearchText(movieText).build(),
-            event -> {
-              event.handler(emitter::onNext);
-              event.endHandler(finished -> {
+        MoviesGrpc.newStub(channel).search(
+            CommonProto.SearchRequest.newBuilder().setSearchText(movieText).build(),
+            new StreamObserver<>() {
+              @Override
+              public void onNext(GrpcMovie grpcMovie) {
+                emitter.onNext(grpcMovie);
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                logger.error("Error building gRPC doSearchMovies stream.", throwable);
+                emitter.onError(throwable);
+              }
+
+              @Override
+              public void onCompleted() {
                 logger.debug("gRPC doSearchMovies stream complete.");
                 emitter.onComplete();
-              });
+              }
             });
       } catch (Exception e) {
         logger.error("Error building gRPC doSearchMovies stream.", e);
@@ -140,14 +171,24 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<Audio> doGetAudio() {
     Observable<AudioProto.GrpcAudio> observable = Observable.create(emitter -> {
       try {
-        AudioGrpc.AudioVertxStub stub = AudioGrpc.newVertxStub(getChannel());
         Empty empty = Empty.getDefaultInstance();
-        stub.get(empty, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
+        AudioGrpc.newStub(channel).get(empty, new StreamObserver<>() {
+          @Override
+          public void onNext(GrpcAudio grpcAudio) {
+            emitter.onNext(grpcAudio);
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            logger.error("Error building gRPC doGetAudio stream.", throwable);
+            emitter.onError(throwable);
+          }
+
+          @Override
+          public void onCompleted() {
             logger.debug("gRPC doGetAudio stream complete.");
             emitter.onComplete();
-          });
+          }
         });
       } catch (Exception e) {
         logger.error("Error building gRPC doGetAudio stream.", e);
@@ -162,16 +203,26 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<Audio> doGetAudioTracks(String albumTitle) {
     Observable<AudioProto.GrpcAudio> observable = Observable.create(emitter -> {
       try {
-        AudioGrpc.AudioVertxStub stub = AudioGrpc.newVertxStub(getChannel());
         AudioProto.TracksRequest tracksRequest = AudioProto.TracksRequest.newBuilder()
             .setAlbumTitle(
                 albumTitle).build();
-        stub.tracks(tracksRequest, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
+        AudioGrpc.newStub(channel).tracks(tracksRequest, new StreamObserver<>() {
+          @Override
+          public void onNext(GrpcAudio grpcAudio) {
+            emitter.onNext(grpcAudio);
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            logger.error("Error building gRPC doGetAudioTracks stream.", throwable);
+            emitter.onError(throwable);
+          }
+
+          @Override
+          public void onCompleted() {
             logger.debug("gRPC doGetAudioTracks stream complete.");
             emitter.onComplete();
-          });
+          }
         });
       } catch (Exception e) {
         logger.error("Error building gRPC doGetAudioTracks stream.", e);
@@ -186,15 +237,25 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<Audio> doSearchAudio(String audioText) {
     Observable<AudioProto.GrpcAudio> observable = Observable.create(emitter -> {
       try {
-        AudioGrpc.AudioVertxStub stub = AudioGrpc.newVertxStub(getChannel());
         CommonProto.SearchRequest searchRequest =
             CommonProto.SearchRequest.newBuilder().setSearchText(audioText).build();
-        stub.search(searchRequest, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
+        AudioGrpc.newStub(channel).search(searchRequest, new StreamObserver<>() {
+          @Override
+          public void onNext(GrpcAudio grpcAudio) {
+            emitter.onNext(grpcAudio);
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            logger.error("Error building doSearchAudio stream.", throwable);
+            emitter.onError(throwable);
+          }
+
+          @Override
+          public void onCompleted() {
             logger.debug("gRPC doSearchAudio stream complete.");
             emitter.onComplete();
-          });
+          }
         });
       } catch (Exception e) {
         logger.error("Error building doSearchAudio stream.", e);
@@ -221,15 +282,24 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doGetTelevisionShows() {
     Observable<TelevisionShowsProto.GrpcTelevisionShow> observable = Observable.create(emitter -> {
       try {
-        TelevisionShowsGrpc.TelevisionShowsVertxStub stub = TelevisionShowsGrpc
-            .newVertxStub(getChannel());
         Empty empty = Empty.getDefaultInstance();
-        stub.get(empty, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
+        TelevisionShowsGrpc.newStub(channel).get(empty, new StreamObserver<>() {
+          @Override
+          public void onNext(GrpcTelevisionShow grpcTelevisionShow) {
+            emitter.onNext(grpcTelevisionShow);
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            logger.error("Error building gRPC doGetTelevisionShows stream.", throwable);
+            emitter.onError(throwable);
+          }
+
+          @Override
+          public void onCompleted() {
             logger.debug("gRPC doGetTelevisionShows stream complete.");
             emitter.onComplete();
-          });
+          }
         });
       } catch (Exception e) {
         logger.error("Error building gRPC doGetTelevisionShows stream.", e);
@@ -244,17 +314,27 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doSearchTelevisionShows(String showText) {
     Observable<TelevisionShowsProto.GrpcTelevisionShow> observable = Observable.create(emitter -> {
       try {
-        TelevisionShowsGrpc.TelevisionShowsVertxStub stub = TelevisionShowsGrpc
-            .newVertxStub(getChannel());
         CommonProto.SearchRequest searchRequest =
             CommonProto.SearchRequest.newBuilder().setSearchText(showText).build();
-        stub.search(searchRequest, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
-            logger.debug("gRPC doSearchTelevisionShows stream complete.");
-            emitter.onComplete();
-          });
-        });
+        TelevisionShowsGrpc.newStub(channel).search(searchRequest,
+            new StreamObserver<>() {
+              @Override
+              public void onNext(GrpcTelevisionShow grpcTelevisionShow) {
+                emitter.onNext(grpcTelevisionShow);
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                logger.error("Error building doSearchTelevisionShows stream.", throwable);
+                emitter.onError(throwable);
+              }
+
+              @Override
+              public void onCompleted() {
+                logger.debug("gRPC doSearchTelevisionShows stream complete.");
+                emitter.onComplete();
+              }
+            });
       } catch (Exception e) {
         logger.error("Error building doSearchTelevisionShows stream.", e);
         emitter.onError(e);
@@ -268,18 +348,28 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doGetEpisodes(String seriesTitle, int season) {
     Observable<TelevisionShowsProto.GrpcTelevisionShow> observable = Observable.create(emitter -> {
       try {
-        TelevisionShowsGrpc.TelevisionShowsVertxStub stub = TelevisionShowsGrpc
-            .newVertxStub(getChannel());
         TelevisionShowsProto.EpisodesRequest episodesRequest =
             TelevisionShowsProto.EpisodesRequest.newBuilder().setSeriesTitle(seriesTitle).setSeason(
                 season).build();
-        stub.episodes(episodesRequest, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
-            logger.debug("gRPC doGetEpisodes stream complete.");
-            emitter.onComplete();
-          });
-        });
+        TelevisionShowsGrpc.newStub(channel).episodes(episodesRequest,
+            new StreamObserver<>() {
+              @Override
+              public void onNext(GrpcTelevisionShow grpcTelevisionShow) {
+                emitter.onNext(grpcTelevisionShow);
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                logger.error("Error building doGetEpisodes stream.", throwable);
+                emitter.onError(throwable);
+              }
+
+              @Override
+              public void onCompleted() {
+                logger.debug("gRPC doGetEpisodes stream complete.");
+                emitter.onComplete();
+              }
+            });
       } catch (Exception e) {
         logger.error("Error building doGetEpisodes stream.", e);
         emitter.onError(e);
@@ -293,17 +383,27 @@ public class GrpcMediaService extends AbstractMediaService {
   protected Flowable<TelevisionShow> doGetSeries(String seriesTitle) {
     Observable<TelevisionShowsProto.GrpcTelevisionShow> observable = Observable.create(emitter -> {
       try {
-        TelevisionShowsGrpc.TelevisionShowsVertxStub stub = TelevisionShowsGrpc
-            .newVertxStub(getChannel());
         TelevisionShowsProto.SeriesRequest seriesRequest =
             TelevisionShowsProto.SeriesRequest.newBuilder().setSeriesTitle(seriesTitle).build();
-        stub.series(seriesRequest, event -> {
-          event.handler(emitter::onNext);
-          event.endHandler(finished -> {
-            logger.debug("gRPC doGetSeries stream complete.");
-            emitter.onComplete();
-          });
-        });
+        TelevisionShowsGrpc.newStub(channel).series(seriesRequest,
+            new StreamObserver<>() {
+              @Override
+              public void onNext(GrpcTelevisionShow grpcTelevisionShow) {
+                emitter.onNext(grpcTelevisionShow);
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                logger.error("Error building doGetSeries stream.", throwable);
+                emitter.onError(throwable);
+              }
+
+              @Override
+              public void onCompleted() {
+                logger.debug("gRPC doGetSeries stream complete.");
+                emitter.onComplete();
+              }
+            });
       } catch (Exception e) {
         logger.error("Error building doGetSeries stream.", e);
         emitter.onError(e);
@@ -343,15 +443,5 @@ public class GrpcMediaService extends AbstractMediaService {
   @Override
   protected String getMetricsPrefix() {
     return GrpcMediaService.class.getName();
-  }
-
-  protected ManagedChannel getChannel() {
-    if (channel == null) {
-      channel =
-          VertxChannelBuilder.forAddress(vertx, serviceConfiguration.getHost(),
-              serviceConfiguration.getPort()).usePlaintext().build();
-    }
-
-    return channel;
   }
 }

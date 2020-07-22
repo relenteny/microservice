@@ -22,26 +22,27 @@
 
 package com.solutechconsulting.media.service.mock;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.solutechconsulting.media.model.Audio;
 import com.solutechconsulting.media.model.Movie;
 import com.solutechconsulting.media.model.TelevisionShow;
 import com.solutechconsulting.media.service.MediaService;
 import io.reactivex.Flowable;
 import io.reactivex.subscribers.TestSubscriber;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import javax.inject.Inject;
 import org.eclipse.microprofile.metrics.Metric;
 import org.eclipse.microprofile.metrics.MetricID;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.Timer;
 import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.junit.jupiter.api.Test;
-
-import javax.inject.Inject;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("squid:S2259")
 public abstract class MediaServiceTestBase {

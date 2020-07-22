@@ -29,9 +29,7 @@ import com.solutechconsulting.media.service.AbstractMediaService;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.stream.Stream;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.control.ActivateRequestContext;
@@ -41,7 +39,8 @@ import javax.inject.Named;
 import javax.interceptor.Interceptor;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -60,9 +59,7 @@ public class JpaMediaService extends AbstractMediaService {
   @Override
   @Transactional
   protected Flowable<Movie> doGetMovies() {
-    Stream<MovieEntity> movieEntityStream = entityManager.createQuery("SELECT m FROM MovieEntity m",
-        MovieEntity.class).getResultStream();
-    return movieStreamToFlowable(movieEntityStream);
+    return movieQueryToFlowable("SELECT m FROM MovieEntity m");
   }
 
   @Override
@@ -75,16 +72,17 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<MovieEntity> movieEntityStream = entityManager.createQuery(queryString,
-        MovieEntity.class).getResultStream();
-    return movieStreamToFlowable(movieEntityStream);
+    return movieQueryToFlowable(queryString);
   }
 
-  protected Flowable<Movie> movieStreamToFlowable(Stream<MovieEntity> movieEntityStream) {
+  protected Flowable<Movie> movieQueryToFlowable(
+      String queryString) {
     Observable<MovieEntity> observable = Observable.create(emitter -> {
       try {
-        movieEntityStream.forEach(emitter::onNext);
-        movieEntityStream.close();
+        Stream<MovieEntity> showEntityStream = entityManager.createQuery(queryString,
+            MovieEntity.class).getResultStream();
+        showEntityStream.forEach(emitter::onNext);
+        showEntityStream.close();
         emitter.onComplete();
       } catch (Exception e) {
         logger.error("Error building movie stream.", e);
@@ -92,15 +90,14 @@ public class JpaMediaService extends AbstractMediaService {
       }
     });
 
-    return observable.toFlowable(BackpressureStrategy.BUFFER).map(MovieEntity::getMovie);
+    return observable.toFlowable(BackpressureStrategy.BUFFER)
+        .map(MovieEntity::getMovie);
   }
 
   @Override
   @Transactional
   protected Flowable<Audio> doGetAudio() {
-    Stream<AudioEntity> audioEntityStream = entityManager.createQuery("SELECT a FROM AudioEntity a",
-        AudioEntity.class).getResultStream();
-    return audioStreamToFlowable(audioEntityStream);
+    return audioQueryToFlowable("SELECT a FROM AudioEntity a");
   }
 
   @Override
@@ -116,9 +113,7 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<AudioEntity> audioEntityStream = entityManager.createQuery(queryString,
-        AudioEntity.class).getResultStream();
-    return audioStreamToFlowable(audioEntityStream);
+    return audioQueryToFlowable(queryString);
   }
 
   @Override
@@ -130,16 +125,17 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<AudioEntity> audioEntityStream = entityManager.createQuery(queryString,
-        AudioEntity.class).getResultStream();
-    return audioStreamToFlowable(audioEntityStream);
+    return audioQueryToFlowable(queryString);
   }
 
-  protected Flowable<Audio> audioStreamToFlowable(Stream<AudioEntity> audioEntityStream) {
+  protected Flowable<Audio> audioQueryToFlowable(
+      String queryString) {
     Observable<AudioEntity> observable = Observable.create(emitter -> {
       try {
-        audioEntityStream.forEach(emitter::onNext);
-        audioEntityStream.close();
+        Stream<AudioEntity> showEntityStream = entityManager.createQuery(queryString,
+            AudioEntity.class).getResultStream();
+        showEntityStream.forEach(emitter::onNext);
+        showEntityStream.close();
         emitter.onComplete();
       } catch (Exception e) {
         logger.error("Error building audio stream.", e);
@@ -147,16 +143,14 @@ public class JpaMediaService extends AbstractMediaService {
       }
     });
 
-    return observable.toFlowable(BackpressureStrategy.BUFFER).map(AudioEntity::getAudio);
+    return observable.toFlowable(BackpressureStrategy.BUFFER)
+        .map(AudioEntity::getAudio);
   }
 
   @Override
   @Transactional
   protected Flowable<TelevisionShow> doGetTelevisionShows() {
-    Stream<TelevisionShowEntity> showEntityStream = entityManager.createQuery(
-        "SELECT s FROM TelevisionShowEntity s", TelevisionShowEntity.class).getResultStream();
-
-    return showStreamToFlowable(showEntityStream);
+    return showQueryToFlowable("SELECT s FROM TelevisionShowEntity s");
   }
 
   @Override
@@ -170,10 +164,7 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<TelevisionShowEntity> showEntityStream = entityManager.createQuery(queryString,
-        TelevisionShowEntity.class).getResultStream();
-
-    return showStreamToFlowable(showEntityStream);
+    return showQueryToFlowable(queryString);
   }
 
   @Override
@@ -186,10 +177,7 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<TelevisionShowEntity> showEntityStream = entityManager.createQuery(queryString,
-        TelevisionShowEntity.class).getResultStream();
-
-    return showStreamToFlowable(showEntityStream);
+    return showQueryToFlowable(queryString);
   }
 
   @Override
@@ -201,16 +189,15 @@ public class JpaMediaService extends AbstractMediaService {
 
     logger.debug(queryString);
 
-    Stream<TelevisionShowEntity> showEntityStream = entityManager.createQuery(queryString,
-        TelevisionShowEntity.class).getResultStream();
-
-    return showStreamToFlowable(showEntityStream);
+    return showQueryToFlowable(queryString);
   }
 
-  protected Flowable<TelevisionShow> showStreamToFlowable(
-      Stream<TelevisionShowEntity> showEntityStream) {
+  protected Flowable<TelevisionShow> showQueryToFlowable(
+      String queryString) {
     Observable<TelevisionShowEntity> observable = Observable.create(emitter -> {
       try {
+        Stream<TelevisionShowEntity> showEntityStream = entityManager.createQuery(queryString,
+            TelevisionShowEntity.class).getResultStream();
         showEntityStream.forEach(emitter::onNext);
         showEntityStream.close();
         emitter.onComplete();

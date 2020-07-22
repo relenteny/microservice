@@ -6,7 +6,7 @@ This project demonstrates a number of use microservice development patterns usin
 
 To build and run the code, the prerequisites are as follows:
 
-* The project is using Java 8. There are multiple locations from which Java 8 may be obtained including [AdoptOpenJDK](https://adoptopenjdk.net/).
+* The project is using Java 11. There are multiple locations from which Java 8 may be obtained including [AdoptOpenJDK](https://adoptopenjdk.net/).
 
 * Maven is used as the project definition format. A recent version of Maven should be used. This code has been developed and tested using Maven 3.6.3. Maven can be downloaded from the [Apache Maven Project](https://maven.apache.org/download.cgi).
 
@@ -24,7 +24,7 @@ As the project evolves, the following prerequisites will be required. *NOTE: At 
 
 This source code repository is laid out for convenience in exploring the microservice sample code. It's not necessairly how the source code would be more formally organized.
 
-* `microservice-platform-bom` demonstrates a Maven bill of materials containing common dependencies and definitions that would be used across multilpe microservice projects.
+* `microservice-platform-bom` demonstrates a Maven bill of materials containing common dependencies and definitions that would be used across multiple microservice projects.
 
 * `media-domain` demonstrates a suggested pattern for laying out code that represents the definition and implementation of the microservice. The modules produced by this code are intended to be cosumed by native Java applications including RESTful servers and client consumers.
 
@@ -38,4 +38,4 @@ There is an order in which the projects must be built:
 
 * Start in `microservice-platform-bom` and execute `mvn clean install`.
 * Next, in `media-domain`, execute `mvn clean install`.
-* As described above, `media-server` contains two server implementations. To build and run the servers using the Quarkus `dev` mode, execute `mvn clean quarkus:dev "-Dmediaservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC servcies, gRPC server also listens on port 8888. 
+* As described above, `media-server` contains two server implementations. To build and run the servers using the Quarkus `dev` mode, execute `mvn clean quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server also listens on port 8888. 

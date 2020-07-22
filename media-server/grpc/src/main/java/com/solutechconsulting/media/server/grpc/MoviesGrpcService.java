@@ -29,105 +29,98 @@ import com.solutechconsulting.media.model.Movie;
 import com.solutechconsulting.media.model.protobuf.CommonProto;
 import com.solutechconsulting.media.model.protobuf.MoviesGrpc;
 import com.solutechconsulting.media.model.protobuf.MoviesProto;
+import com.solutechconsulting.media.model.protobuf.MoviesProto.GrpcMovie;
+import com.solutechconsulting.media.model.protobuf.MutinyMoviesGrpc;
 import com.solutechconsulting.media.service.MediaService;
 import io.reactivex.Flowable;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Vertx;
-import io.vertx.core.streams.Pump;
-import io.vertx.grpc.GrpcWriteStream;
-import io.vertx.reactivex.FlowableHelper;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.converters.multi.MultiRxConverters;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetadataBuilder;
 import org.eclipse.microprofile.metrics.MetricRegistry;
 import org.eclipse.microprofile.metrics.MetricType;
 import org.eclipse.microprofile.metrics.Timer;
+import org.eclipse.microprofile.metrics.annotation.RegistryType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Provides the gRPC implementation of the {@link MediaService} movies methods as defined in {@link
- * MoviesGrpc}. The class extends and leverages the generated Vert.x base gRPC class.
+ * MoviesGrpc}. The class extends and leverages the generated Mutiny base gRPC class.
  */
-public class MoviesGrpcService extends MoviesGrpc.MoviesVertxImplBase {
+@Singleton
+public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
 
   private static final Logger logger = LoggerFactory.getLogger(MoviesGrpcService.class.getName());
 
-  private Vertx vertx;
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
 
+  @Inject
+  MediaService mediaService;
   private MetricRegistry metricRegistry;
-  private MediaService mediaService;
 
   private Timer getMoviesTimer;
   private Timer searchMoviesTimer;
 
-  public MoviesGrpcService(Vertx vertx, MediaService mediaService, MetricRegistry metricRegistry) {
-    this.mediaService = mediaService;
-    this.metricRegistry = metricRegistry;
-    this.vertx = vertx;
-
-    initializeMetrics();
+  @Override
+  public Multi<GrpcMovie> get(Empty request) {
+    logger.debug("Invoking get...");
+    return convertMovieResults(mediaService.getMovies(), getMoviesTimer.time())
+        .runSubscriptionOn(executorService);
   }
 
   @Override
-  public void get(Empty request, GrpcWriteStream<MoviesProto.GrpcMovie> response) {
-    vertx.executeBlocking(promise -> {
-      logger.debug("Invoking get...");
-      streamMovieResults(mediaService.getMovies(), response, getMoviesTimer.time());
-      logger.debug("get stream has started.");
-      promise.complete();
-    }, AsyncResult::succeeded);
+  public Multi<GrpcMovie> search(CommonProto.SearchRequest request) {
+    logger.debug("Invoking search... Search text: {}", request.getSearchText());
+    return convertMovieResults(mediaService.searchMovies(request.getSearchText()),
+        searchMoviesTimer.time()).runSubscriptionOn(executorService);
   }
 
-  @Override
-  public void search(CommonProto.SearchRequest request,
-      GrpcWriteStream<MoviesProto.GrpcMovie> response) {
-    vertx.executeBlocking(promise -> {
-      logger.debug("Invoking search... Search text: {}", request.getSearchText());
-      streamMovieResults(mediaService.searchMovies(request.getSearchText()), response,
-          searchMoviesTimer.time());
-      logger.debug("search stream has started.");
-    }, AsyncResult::succeeded);
-  }
-
-  protected void streamMovieResults(Flowable<Movie> flowable,
-      GrpcWriteStream<MoviesProto.GrpcMovie> response,
+  protected Multi<GrpcMovie> convertMovieResults(Flowable<Movie> flowable,
       Timer.Context timerContext) {
-    Pump pump =
-        Pump.pump(FlowableHelper.toReadStream(flowable.doOnError(throwable -> {
+
+    return Multi.createFrom()
+        .converter(MultiRxConverters.fromFlowable(), flowable.map(
+            this::mapMovie).doOnError(throwable -> {
           logger.error("An error occurred. Terminating stream.", throwable);
           timerContext.stop();
-          response.end();
         }).doOnComplete(() -> {
-          logger.debug("Movies stream complete.");
-          timerContext.stop();
-          response.end();
-        }).map(movie -> {
-          MoviesProto.GrpcMovie.Builder builder =
-              MoviesProto.GrpcMovie.newBuilder().setId(movie.getId()).setTitle(
-                  movie.getTitle()).setStudio(movie.getStudio()).setContentRating(
-                  movie.getContentRating()).setGenres(movie.getGenres()).setTagline(
-                  movie.getTagline()).setSummary(movie.getSummary()).setDirectors(
-                  movie.getDirectors()).setRoles(movie.getRoles());
-          movie.getCriticsRating().ifPresent(builder::setCriticsRating);
-          movie.getAudienceRating().ifPresent(builder::setAudienceRating);
-          movie.getYear().ifPresent(builder::setYear);
+              logger.debug("Movies stream complete.");
+              timerContext.stop();
+            }
+        ));
+  }
 
-          movie.getReleaseDate().ifPresent(releaseDate -> {
-            Instant instant = releaseDate.atStartOfDay().toInstant(ZoneOffset.UTC);
-            builder.setReleaseDate(
-                Timestamp.newBuilder().setSeconds(instant.getEpochSecond()).setNanos(
-                    instant.getNano()));
-          });
+  protected GrpcMovie mapMovie(Movie movie) {
+    MoviesProto.GrpcMovie.Builder builder =
+        MoviesProto.GrpcMovie.newBuilder().setId(movie.getId()).setTitle(
+            movie.getTitle()).setStudio(movie.getStudio()).setContentRating(
+            movie.getContentRating()).setGenres(movie.getGenres()).setTagline(
+            movie.getTagline()).setSummary(movie.getSummary()).setDirectors(
+            movie.getDirectors()).setRoles(movie.getRoles());
+    movie.getCriticsRating().ifPresent(builder::setCriticsRating);
+    movie.getAudienceRating().ifPresent(builder::setAudienceRating);
+    movie.getYear().ifPresent(builder::setYear);
 
-          builder.setDuration(
-              Duration.newBuilder().setSeconds(movie.getDuration().getSeconds()).setNanos(
-                  movie.getDuration().getNano()));
+    movie.getReleaseDate().ifPresent(releaseDate -> {
+      Instant instant = releaseDate.atStartOfDay().toInstant(ZoneOffset.UTC);
+      builder.setReleaseDate(
+          Timestamp.newBuilder().setSeconds(instant.getEpochSecond()).setNanos(
+              instant.getNano()));
+    });
 
-          return builder.build();
-        })), response);
-    pump.start();
+    builder.setDuration(
+        Duration.newBuilder().setSeconds(movie.getDuration().getSeconds()).setNanos(
+            movie.getDuration().getNano()));
+
+    return builder.build();
   }
 
   /**
@@ -156,5 +149,20 @@ public class MoviesGrpcService extends MoviesGrpc.MoviesVertxImplBase {
     searchMoviesTimer = metricRegistry.timer(metadata);
 
     logger.debug("Service metrics initialized.");
+  }
+
+  /**
+   * Inject the registry for use by the services. The metric registry is available at the post
+   * construct lifecycle event. The registry is passed to each service implementation to register
+   * and log metrics.
+   *
+   * @param metricRegistry the application metric registry
+   */
+  @PostConstruct
+  @Inject
+  public void initialize(
+      @RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+    this.metricRegistry = metricRegistry;
+    initializeMetrics();
   }
 }
