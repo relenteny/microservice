@@ -38,4 +38,4 @@ There is an order in which the projects must be built:
 
 * Start in `microservice-platform-bom` and execute `mvn clean install`.
 * Next, in `media-domain`, execute `mvn clean install`.
-* As described above, `media-server` contains two server implementations. To build and run the servers using the Quarkus `dev` mode, execute `mvn clean quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server also listens on port 8888. 
+* As described above, `media-server` contains two server implementations. To build and run the servers using the Quarkus `dev` mode, execute `mvn clean quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server also listens on port 9000. 

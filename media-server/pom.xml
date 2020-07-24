@@ -38,10 +38,6 @@
   <version>1.6.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <properties>
-    <postgresql.version>42.2.10</postgresql.version>
-  </properties>
-
   <modules>
     <module>rest</module>
     <module>grpc</module>
@@ -68,25 +64,6 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
-    </dependency>
-
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>com.solutechconsulting.media</groupId>
-      <artifactId>sample-data</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.solutechconsulting.media</groupId>
-      <artifactId>service-mock</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-h2</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -148,11 +125,6 @@
         <dependency>
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-jdbc-postgresql</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-          <version>${postgresql.version}</version>
         </dependency>
 
         <dependency>
