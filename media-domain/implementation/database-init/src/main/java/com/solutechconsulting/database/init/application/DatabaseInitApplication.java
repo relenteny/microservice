@@ -26,6 +26,9 @@ import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import javax.inject.Inject;
 
+/**
+ * Entrypoint for Flyway database load.
+ */
 @QuarkusMain
 public class DatabaseInitApplication implements QuarkusApplication {
 
@@ -33,7 +36,7 @@ public class DatabaseInitApplication implements QuarkusApplication {
   DatabaseInitService databaseInitService;
 
   @Override
-  public int run(String... args) throws Exception {
+  public int run(String... args) {
     databaseInitService.checkMigration();
     return 0;
   }

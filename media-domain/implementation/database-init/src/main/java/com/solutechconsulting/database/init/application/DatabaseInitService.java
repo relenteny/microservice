@@ -29,6 +29,9 @@ import org.flywaydb.core.internal.output.InfoOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Basic class to display results of Flyway migration.
+ */
 @ApplicationScoped
 public class DatabaseInitService {
 
