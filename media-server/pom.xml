@@ -121,8 +121,7 @@
       <id>prod</id>
       <activation>
         <property>
-          <name>service.type</name>
-          <value>production</value>
+          <name>!service.type</name>
         </property>
       </activation>
 
