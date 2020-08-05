@@ -22,13 +22,14 @@
 
 package com.solutechconsulting.media.server.rest;
 
+import com.solutechconsulting.media.model.Audio;
 import com.solutechconsulting.media.service.MediaService;
+import io.smallrye.mutiny.Multi;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
 /**
@@ -37,7 +38,7 @@ import org.eclipse.microprofile.metrics.annotation.Timed;
  * into single, synchronous responses.
  */
 @Path(ResourceDefinitions.Path.Audio.PATH)
-public class AudioResource extends AbstractMediaResource {
+public class AudioResource extends AbstractMediaResource<Audio> {
 
   private static final String METRICS_PREFIX = "com.solutechconsulting.media.server.rest.AudioResource";
 
@@ -52,11 +53,9 @@ public class AudioResource extends AbstractMediaResource {
   @Timed(name = MediaService.MetricsDefinitions.GetAudio.TIMER_NAME, displayName =
       METRICS_PREFIX + '.' + MediaService.MetricsDefinitions.GetAudio.TIMER_NAME, description =
       MediaService.MetricsDefinitions.GetAudio.TIMER_DESCRIPTION)
-  public Response getAudio() {
+  public Multi<Audio> getAudio() {
     getLogger().debug("Invoking getAudio...");
-    Response response = createResponse(getMediaService().getAudio());
-    getLogger().debug("getAudio complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getAudio());
   }
 
   /**
@@ -73,12 +72,10 @@ public class AudioResource extends AbstractMediaResource {
   @Timed(name = MediaService.MetricsDefinitions.SearchAudio.TIMER_NAME, displayName =
       METRICS_PREFIX + '.' + MediaService.MetricsDefinitions.SearchAudio.TIMER_NAME, description =
       MediaService.MetricsDefinitions.SearchAudio.TIMER_DESCRIPTION)
-  public Response searchAudio(
+  public Multi<Audio> searchAudio(
       @PathParam(ResourceDefinitions.SEARCH_TEXT_PARAMETER) String searchText) {
     getLogger().debug("Invoking searchAudio... Search text: {}", searchText);
-    Response response = createResponse(getMediaService().searchAudio(searchText));
-    getLogger().debug("searchAudio complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().searchAudio(searchText));
   }
 
   /**
@@ -95,11 +92,9 @@ public class AudioResource extends AbstractMediaResource {
       METRICS_PREFIX + '.'
           + MediaService.MetricsDefinitions.GetAudioTracks.TIMER_NAME, description =
       MediaService.MetricsDefinitions.GetAudioTracks.TIMER_DESCRIPTION)
-  public Response getTracks(
+  public Multi<Audio> getTracks(
       @PathParam(ResourceDefinitions.Path.Audio.ALBUM_TITLE_PARAMETER) String albumTitle) {
     getLogger().debug("Invoking getTracks... Album title: {}", albumTitle);
-    Response response = createResponse(getMediaService().getAudioTracks(albumTitle));
-    getLogger().debug("getTracks complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getAudioTracks(albumTitle));
   }
 }

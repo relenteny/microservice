@@ -22,13 +22,14 @@
 
 package com.solutechconsulting.media.server.rest;
 
+import com.solutechconsulting.media.model.Movie;
 import com.solutechconsulting.media.service.MediaService;
+import io.smallrye.mutiny.Multi;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
 /**
@@ -37,7 +38,7 @@ import org.eclipse.microprofile.metrics.annotation.Timed;
  * into single, synchronous responses.
  */
 @Path(ResourceDefinitions.Path.Movies.PATH)
-public class MoviesResource extends AbstractMediaResource {
+public class MoviesResource extends AbstractMediaResource<Movie> {
 
   private static final String METRICS_PREFIX = "com.solutechconsulting.media.server.rest.MoviesResource";
 
@@ -50,14 +51,12 @@ public class MoviesResource extends AbstractMediaResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Path(ResourceDefinitions.Path.Common.ALL_PATH)
   @Timed(name = MediaService.MetricsDefinitions.GetMovies.TIMER_NAME, displayName =
-      METRICS_PREFIX + '.' + MediaService.MetricsDefinitions.GetMovies.TIMER_NAME, description =
-      "Return all " +
-          "movies in the media library.")
-  public Response getMovies() {
+      METRICS_PREFIX + '.'
+          + MediaService.MetricsDefinitions.GetMovies.TIMER_NAME,
+      description = MediaService.MetricsDefinitions.GetMovies.TIMER_DESCRIPTION)
+  public Multi<Movie> getMovies() {
     getLogger().debug("Invoking getMovies...");
-    Response response = createResponse(getMediaService().getMovies());
-    getLogger().debug("getMovies complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getMovies());
   }
 
   /**
@@ -73,12 +72,11 @@ public class MoviesResource extends AbstractMediaResource {
   @Path(ResourceDefinitions.Path.Common.SEARCH_FULL_PATH)
   @Timed(name = MediaService.MetricsDefinitions.SearchMovies.TIMER_NAME, displayName =
       METRICS_PREFIX + '.'
-          + MediaService.MetricsDefinitions.SearchMovies.TIMER_NAME, description = "")
-  public Response searchMovies(
+          + MediaService.MetricsDefinitions.SearchMovies.TIMER_NAME,
+      description = MediaService.MetricsDefinitions.SearchMovies.TIMER_DESCRIPTION)
+  public Multi<Movie> searchMovies(
       @PathParam(ResourceDefinitions.SEARCH_TEXT_PARAMETER) String searchText) {
     getLogger().debug("Invoking searchMovies... Search text: {}", searchText);
-    Response response = createResponse(getMediaService().searchMovies(searchText));
-    getLogger().debug("searchMovies complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().searchMovies(searchText));
   }
 }

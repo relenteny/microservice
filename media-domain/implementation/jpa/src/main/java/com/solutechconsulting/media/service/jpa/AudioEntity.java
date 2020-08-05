@@ -24,13 +24,12 @@ package com.solutechconsulting.media.service.jpa;
 
 import com.solutechconsulting.media.model.Audio;
 import com.solutechconsulting.media.model.ImmutableAudio;
-
+import java.time.Duration;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.Duration;
-import java.util.Optional;
 
 /**
  * The entity class for audio media types.
@@ -44,9 +43,9 @@ public class AudioEntity extends MediaEntity {
   private String albumArtist;
   private String album;
   private String artist;
-  private int trackNumber;
+  private Integer trackNumber;
   private Duration duration;
-  private int year;
+  private Integer year;
 
   public AudioEntity() {
   }
@@ -77,7 +76,7 @@ public class AudioEntity extends MediaEntity {
     return ImmutableAudio.builder().id(getId()).title(getTitle()).albumArtist(getAlbumArtist())
         .album(
             getAlbum()).trackNumber(getTrackNumber()).duration(getDuration())
-        .year(Optional.of(getYear())).artist(
+        .year(Optional.ofNullable(getYear())).artist(
             Optional.ofNullable(getArtist())).build();
   }
 
@@ -109,11 +108,11 @@ public class AudioEntity extends MediaEntity {
   }
 
   @Column(name = "track_number")
-  public int getTrackNumber() {
+  public Integer getTrackNumber() {
     return trackNumber;
   }
 
-  public void setTrackNumber(int trackNumber) {
+  public void setTrackNumber(Integer trackNumber) {
     this.trackNumber = trackNumber;
   }
 
@@ -127,11 +126,11 @@ public class AudioEntity extends MediaEntity {
   }
 
   @Column(name = "year")
-  public int getYear() {
+  public Integer getYear() {
     return year;
   }
 
-  public void setYear(int year) {
+  public void setYear(Integer year) {
     this.year = year;
   }
 }

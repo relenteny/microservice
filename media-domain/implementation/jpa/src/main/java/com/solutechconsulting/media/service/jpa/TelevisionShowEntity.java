@@ -24,14 +24,13 @@ package com.solutechconsulting.media.service.jpa;
 
 import com.solutechconsulting.media.model.ImmutableTelevisionShow;
 import com.solutechconsulting.media.model.TelevisionShow;
-
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * The entity class for television show media types.
@@ -43,12 +42,12 @@ import java.util.Optional;
 public class TelevisionShowEntity extends MediaEntity {
 
   private String seriesTitle;
-  private int year;
-  private int season;
-  private int episode;
+  private Integer year;
+  private Integer season;
+  private Integer episode;
   private String contentRating;
   private String summary;
-  private double rating;
+  private Double rating;
   private String studio;
   private LocalDate originallyAired;
   private Duration duration;
@@ -93,7 +92,8 @@ public class TelevisionShowEntity extends MediaEntity {
         .summary(getSummary()).studio(
             getStudio()).duration(getDuration()).directors(getDirectors()).writers(getWriters())
         .year(
-            Optional.of(getYear())).rating(Optional.of(getRating())).originallyAired(
+            Optional.ofNullable(getYear())).rating(Optional.ofNullable(getRating()))
+        .originallyAired(
             Optional.ofNullable(getOriginallyAired())).build();
   }
 
@@ -107,29 +107,29 @@ public class TelevisionShowEntity extends MediaEntity {
   }
 
   @Column(name = "year")
-  public int getYear() {
+  public Integer getYear() {
     return year;
   }
 
-  public void setYear(int year) {
+  public void setYear(Integer year) {
     this.year = year;
   }
 
   @Column(name = "season")
-  public int getSeason() {
+  public Integer getSeason() {
     return season;
   }
 
-  public void setSeason(int season) {
+  public void setSeason(Integer season) {
     this.season = season;
   }
 
   @Column(name = "episode")
-  public int getEpisode() {
+  public Integer getEpisode() {
     return episode;
   }
 
-  public void setEpisode(int episode) {
+  public void setEpisode(Integer episode) {
     this.episode = episode;
   }
 
@@ -152,11 +152,11 @@ public class TelevisionShowEntity extends MediaEntity {
   }
 
   @Column(name = "rating")
-  public double getRating() {
+  public Double getRating() {
     return rating;
   }
 
-  public void setRating(double rating) {
+  public void setRating(Double rating) {
     this.rating = rating;
   }
 

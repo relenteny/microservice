@@ -22,13 +22,14 @@
 
 package com.solutechconsulting.media.server.rest;
 
+import com.solutechconsulting.media.model.TelevisionShow;
 import com.solutechconsulting.media.service.MediaService;
+import io.smallrye.mutiny.Multi;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
 /**
@@ -37,7 +38,7 @@ import org.eclipse.microprofile.metrics.annotation.Timed;
  * the stream into single, synchronous responses.
  */
 @Path(ResourceDefinitions.Path.TelevisionShows.PATH)
-public class TelevisionShowsResource extends AbstractMediaResource {
+public class TelevisionShowsResource extends AbstractMediaResource<TelevisionShow> {
 
   private static final String METRICS_PREFIX = "com.solutechconsulting.media.server.rest.TelevisionShowResource";
 
@@ -54,11 +55,9 @@ public class TelevisionShowsResource extends AbstractMediaResource {
       METRICS_PREFIX + '.'
           + MediaService.MetricsDefinitions.GetTelevisionShows.TIMER_NAME, description =
       "Return all television shows stored in the media library.")
-  public Response getTelevisionShows() {
+  public Multi<TelevisionShow> getTelevisionShows() {
     getLogger().debug("Invoking getTelevisionShows...");
-    Response response = createResponse(getMediaService().getTelevisionShows());
-    getLogger().debug("getTelevisionShows complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getTelevisionShows());
   }
 
   /**
@@ -76,12 +75,10 @@ public class TelevisionShowsResource extends AbstractMediaResource {
       METRICS_PREFIX + '.'
           + MediaService.MetricsDefinitions.SearchTelevisionShows.TIMER_NAME, description =
       "Perform a case insensitive text search of television shows in the media library.")
-  public Response searchTelevisionShows(
+  public Multi<TelevisionShow> searchTelevisionShows(
       @PathParam(ResourceDefinitions.SEARCH_TEXT_PARAMETER) String searchText) {
     getLogger().debug("Invoking searchTelevisionShows... Search text: {}", searchText);
-    Response response = createResponse(getMediaService().searchTelevisionShows(searchText));
-    getLogger().debug("getTelevisionShows complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().searchTelevisionShows(searchText));
   }
 
   /**
@@ -98,12 +95,10 @@ public class TelevisionShowsResource extends AbstractMediaResource {
   @Timed(name = MediaService.MetricsDefinitions.GetSeries.TIMER_NAME, displayName =
       METRICS_PREFIX + '.' + MediaService.MetricsDefinitions.GetSeries.TIMER_NAME, description =
       "Given a series title, return television show episodes for the entire series from the media library.")
-  public Response getSeries(
+  public Multi<TelevisionShow> getSeries(
       @PathParam(ResourceDefinitions.Path.TelevisionShows.SERIES_TITLE_PARAMETER) String seriesTitle) {
     getLogger().debug("Invoking getSeries... Series title: {}", seriesTitle);
-    Response response = createResponse(getMediaService().getSeries(seriesTitle));
-    getLogger().debug("getSeries complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getSeries(seriesTitle));
   }
 
   /**
@@ -121,12 +116,10 @@ public class TelevisionShowsResource extends AbstractMediaResource {
   @Timed(name = MediaService.MetricsDefinitions.GetEpisodes.TIMER_NAME, displayName =
       METRICS_PREFIX + '.' + MediaService.MetricsDefinitions.GetEpisodes.TIMER_NAME, description =
       "Given a series title and season, return the television show episodes from the media library.")
-  public Response getEpisodes(
+  public Multi<TelevisionShow> getEpisodes(
       @PathParam(ResourceDefinitions.Path.TelevisionShows.SERIES_TITLE_PARAMETER) String seriesTitle,
       @PathParam(ResourceDefinitions.Path.TelevisionShows.SEASON_PARAMETER) int season) {
     getLogger().debug("Invoking getEpisodes... Series title: {}, Season: {}", seriesTitle, season);
-    Response response = createResponse(getMediaService().getEpisodes(seriesTitle, season));
-    getLogger().debug("getEpisodes complete. Response code: {}", response.getStatus());
-    return response;
+    return createResponse(getMediaService().getEpisodes(seriesTitle, season));
   }
 }

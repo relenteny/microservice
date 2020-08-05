@@ -24,14 +24,13 @@ package com.solutechconsulting.media.service.jpa;
 
 import com.solutechconsulting.media.model.ImmutableMovie;
 import com.solutechconsulting.media.model.Movie;
-
+import java.time.Duration;
+import java.time.LocalDate;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * The entity class for movie media types.
@@ -44,9 +43,9 @@ import java.util.Optional;
 public class MovieEntity extends MediaEntity {
 
   private String studio;
-  private int year;
+  private Integer year;
   private String contentRating;
-  private double criticsRating;
+  private Double criticsRating;
   private String summary;
   private LocalDate releaseDate;
   private String genres;
@@ -54,7 +53,7 @@ public class MovieEntity extends MediaEntity {
   private Duration duration;
   private String directors;
   private String roles;
-  private double audienceRating;
+  private Double audienceRating;
 
   public MovieEntity() {
   }
@@ -89,11 +88,12 @@ public class MovieEntity extends MediaEntity {
   @Transient
   public Movie getMovie() {
     return ImmutableMovie.builder().id(getId()).title(getTitle()).studio(getStudio()).year(
-        Optional.of(getYear())).criticsRating(Optional.of(getCriticsRating())).summary(getSummary())
+        Optional.ofNullable(getYear())).criticsRating(Optional.ofNullable(getCriticsRating()))
+        .summary(getSummary())
         .genres(
             getGenres()).tagline(getTagline()).duration(getDuration()).directors(getDirectors())
         .roles(
-            getRoles()).audienceRating(Optional.of(getAudienceRating())).contentRating(
+            getRoles()).audienceRating(Optional.ofNullable(getAudienceRating())).contentRating(
             getContentRating()).releaseDate(Optional.ofNullable(getReleaseDate())).build();
   }
 
@@ -107,20 +107,20 @@ public class MovieEntity extends MediaEntity {
   }
 
   @Column(name = "year")
-  public int getYear() {
+  public Integer getYear() {
     return year;
   }
 
-  public void setYear(int year) {
+  public void setYear(Integer year) {
     this.year = year;
   }
 
   @Column(name = "critics_rating")
-  public double getCriticsRating() {
+  public Double getCriticsRating() {
     return criticsRating;
   }
 
-  public void setCriticsRating(double criticsRating) {
+  public void setCriticsRating(Double criticsRating) {
     this.criticsRating = criticsRating;
   }
 
@@ -188,11 +188,11 @@ public class MovieEntity extends MediaEntity {
   }
 
   @Column(name = "audience_rating")
-  public double getAudienceRating() {
+  public Double getAudienceRating() {
     return audienceRating;
   }
 
-  public void setAudienceRating(double audienceRating) {
+  public void setAudienceRating(Double audienceRating) {
     this.audienceRating = audienceRating;
   }
 

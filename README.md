@@ -36,7 +36,11 @@ With Java and Maven installed, building the application follows the typical Mave
 
 There is an order in which the projects must be built:
 
-* Start in `microservice-platform-bom` and execute `mvn clean install`.
-* Next, in `media-domain`, execute `mvn clean install`.
-* As described above, `media-server` contains two server implementations. To build and run the servers using the Quarkus `dev` mode, execute `mvn clean quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server listens on port 9000.
-* The application's "production" configuration assumes a connection to PostgreSQL is available, and the sample data has been loaded in PostgreSQL.  
+* The project contains two implementations of the business service interface. Building the project requires selecting the implementation. Start in at projects' the top-level and execute one of the following Maven commands:
+  * `mvn clean install -Dservice.type=mock -Dquarkus.profile=dev`
+  * `mvn clean install -Dservice.type=production`
+* As described above, `media-server` contains two server implementations. To run the servers using the Quarkus `dev` mode, execute `mvn quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server listens on port 9000.
+* The application's "production" configuration assumes a connection to PostgreSQL is available, and the sample data has been loaded in PostgreSQL.
+* If a PostgreSQL environment is available, the the database can be loaded with sample data using the uber jar created in the `media-domain/implementation/database-init` module. Review the application.properties. Change them or use one of the Quarkus properties override mechanisms to load a specific instance of PostgreSQL.
+
+_As mentioned above, this project is a work in progress. Future updates will provide support for Kubernetes deployments via Helm Stay tuned._

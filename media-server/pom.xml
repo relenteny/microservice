@@ -31,6 +31,7 @@
     <groupId>com.solutechconsulting</groupId>
     <artifactId>microservice-platform-bom</artifactId>
     <version>1.6.0-SNAPSHOT</version>
+    <relativePath>../microservice-platform-bom</relativePath>
   </parent>
 
   <groupId>com.solutechconsulting.media</groupId>

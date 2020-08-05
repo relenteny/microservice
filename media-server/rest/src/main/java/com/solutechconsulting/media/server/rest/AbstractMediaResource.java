@@ -25,8 +25,10 @@ package com.solutechconsulting.media.server.rest;
 import com.solutechconsulting.media.model.Media;
 import com.solutechconsulting.media.service.MediaService;
 import io.reactivex.Flowable;
-import java.util.ArrayList;
-import java.util.List;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.converters.multi.MultiRxConverters;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -36,9 +38,11 @@ import org.slf4j.LoggerFactory;
  * AbstractMediaResource contains common and convenience methods used by all {@link MediaService}
  * RESTful resources.
  */
-public abstract class AbstractMediaResource {
+public abstract class AbstractMediaResource<T extends Media> {
 
   private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   @Inject
   MediaService mediaService;
@@ -51,25 +55,15 @@ public abstract class AbstractMediaResource {
    * @return a response containing an array of all items returned in the flowable or a bad request
    * error if an exception occurs.
    */
-  protected Response createResponse(Flowable<? extends Media> flowable) {
+  protected Multi<T> createResponse(Flowable<T> flowable) {
     getLogger().debug("Creating response...");
-    Response.ResponseBuilder responseBuilder = Response.ok();
-    List<Media> movies = new ArrayList<>();
 
-    flowable.subscribe(movies::add,
-        throwable -> {
-          getLogger().error("Media service exception.", throwable);
-          movies.clear();
-          responseBuilder.status(Response.Status.BAD_REQUEST.getStatusCode(),
-              throwable.getMessage());
-        }).dispose();
-
-    if (!movies.isEmpty()) {
-      responseBuilder.entity(movies);
-    }
-
-    getLogger().debug("Response created.");
-    return responseBuilder.build();
+    return Multi.createFrom().converter(MultiRxConverters.fromFlowable(), flowable).onFailure()
+        .invoke(throwable -> getLogger().error("Media service exception.", throwable))
+        .then(multi -> {
+          getLogger().debug("Response created.");
+          return multi;
+        }).runSubscriptionOn(executorService);
   }
 
   protected MediaService getMediaService() {
