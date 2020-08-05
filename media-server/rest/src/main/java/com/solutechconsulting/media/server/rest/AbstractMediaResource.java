@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMediaResource<T extends Media> {
 
-  private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+  private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -58,12 +58,10 @@ public abstract class AbstractMediaResource<T extends Media> {
   protected Multi<T> createResponse(Flowable<T> flowable) {
     getLogger().debug("Creating response...");
 
-    return Multi.createFrom().converter(MultiRxConverters.fromFlowable(), flowable).onFailure()
-        .invoke(throwable -> getLogger().error("Media service exception.", throwable))
-        .then(multi -> {
-          getLogger().debug("Response created.");
-          return multi;
-        }).runSubscriptionOn(executorService);
+    return Multi.createFrom().converter(MultiRxConverters.fromFlowable(), flowable)
+        .onFailure().invoke(throwable -> getLogger().error("Media service exception.", throwable))
+        .onCompletion().invoke(() -> getLogger().debug("Response complete."))
+        .runSubscriptionOn(executorService);
   }
 
   protected MediaService getMediaService() {
