@@ -55,6 +55,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.interceptor.Interceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,9 +66,9 @@ import org.slf4j.LoggerFactory;
  * module. The service is configured via <code>quarkus.grpc.clients</code> properties.
  */
 @ApplicationScoped
-@Named(GrpcMediaService.SERVICE_NAME)
 @Alternative
-@Priority(10)
+@Priority(Interceptor.Priority.APPLICATION - 10)
+@Named(GrpcMediaService.SERVICE_NAME)
 public class GrpcMediaService extends AbstractMediaService {
 
   public static final String SERVICE_NAME = "GrpcMediaService";

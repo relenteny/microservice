@@ -23,8 +23,8 @@
 package com.solutechconsulting.media.server.rest;
 
 import com.solutechconsulting.media.service.MediaService;
-import com.solutechconsulting.media.service.mock.MediaServiceTestBase;
 import com.solutechconsulting.media.service.rest.RestMediaService;
+import com.solutechconsulting.media.test.MediaServiceTestBase;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.inject.Inject;
 import javax.inject.Named;

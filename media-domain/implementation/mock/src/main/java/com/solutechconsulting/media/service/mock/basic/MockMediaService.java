@@ -20,7 +20,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.solutechconsulting.media.service.mock;
+package com.solutechconsulting.media.service.mock.basic;
 
 import com.solutechconsulting.media.model.Audio;
 import com.solutechconsulting.media.model.Movie;
@@ -30,14 +30,13 @@ import com.solutechconsulting.media.sample.MovieLoader;
 import com.solutechconsulting.media.sample.TelevisionShowLoader;
 import com.solutechconsulting.media.service.AbstractMediaService;
 import io.reactivex.Flowable;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Named;
 import javax.interceptor.Interceptor;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple implementation of the {@link com.solutechconsulting.media.service.MediaService}

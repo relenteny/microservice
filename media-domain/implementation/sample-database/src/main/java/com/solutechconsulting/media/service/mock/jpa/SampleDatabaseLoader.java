@@ -20,60 +20,36 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.solutechconsulting.media.service.mock;
+package com.solutechconsulting.media.service.mock.jpa;
 
 import com.solutechconsulting.media.sample.AudioLoader;
 import com.solutechconsulting.media.sample.MovieLoader;
 import com.solutechconsulting.media.sample.TelevisionShowLoader;
-import com.solutechconsulting.media.service.MediaService;
 import com.solutechconsulting.media.service.jpa.AudioEntity;
-import com.solutechconsulting.media.service.jpa.JpaMediaService;
 import com.solutechconsulting.media.service.jpa.MovieEntity;
 import com.solutechconsulting.media.service.jpa.TelevisionShowEntity;
+import io.quarkus.runtime.Startup;
 import io.reactivex.schedulers.Schedulers;
-import javax.annotation.Priority;
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
-import javax.inject.Named;
-import javax.interceptor.Interceptor;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Startup
 @ApplicationScoped
-@Alternative
-@Priority(Interceptor.Priority.APPLICATION + 10)
-public class MockServiceProducer {
+public class SampleDatabaseLoader {
 
-  private final Logger logger = LoggerFactory.getLogger(MockServiceProducer.class.getName());
-
-  @ConfigProperty(name = "mediaservice.mock.type", defaultValue = "simple")
-  String serviceType;
+  private final Logger logger = LoggerFactory.getLogger(SampleDatabaseLoader.class.getName());
 
   @Inject
   EntityManager entityManager;
 
-  @Inject
-  @Named(JpaMediaService.SERVICE_NAME)
-  MediaService jpaMediaService;
-
-  @Inject
-  @Named(MockMediaService.SERVICE_NAME)
-  MediaService mockMediaService;
-
-  @Produces
-  @ApplicationScoped
-  public MediaService getMediaService() {
-    if (serviceType.equals("jpa")) {
-      loadDatabase();
-      return jpaMediaService;
-    }
-
-    return mockMediaService;
+  @PostConstruct
+  public void postLoad() {
+    loadDatabase();
   }
 
   @Transactional

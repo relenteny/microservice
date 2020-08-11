@@ -55,11 +55,6 @@
       <artifactId>domain-model</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.solutechconsulting.media</groupId>
-      <artifactId>service-jpa</artifactId>
-      <version>${project.version}</version>
-    </dependency>
 
     <!-- Quarkus dependencies -->
     <dependency>
@@ -94,7 +89,7 @@
       <id>mock</id>
       <activation>
         <property>
-          <name>service.type</name>
+          <name>quarkus.profile</name>
           <value>mock</value>
         </property>
       </activation>
@@ -110,6 +105,29 @@
           <artifactId>service-mock</artifactId>
           <version>${project.version}</version>
         </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
+      <id>dev</id>
+      <activation>
+        <property>
+          <name>quarkus.profile</name>
+          <value>dev</value>
+        </property>
+      </activation>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.solutechconsulting.media</groupId>
+          <artifactId>sample-database</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.solutechconsulting.media</groupId>
+          <artifactId>service-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
         <dependency>
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-jdbc-h2</artifactId>
@@ -121,18 +139,25 @@
       <id>prod</id>
       <activation>
         <property>
-          <name>!service.type</name>
+          <name>!quarkus.profile</name>
         </property>
       </activation>
 
       <dependencies>
         <dependency>
+          <groupId>com.solutechconsulting.media</groupId>
+          <artifactId>service-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
           <groupId>io.quarkus</groupId>
           <artifactId>quarkus-jdbc-postgresql</artifactId>
         </dependency>
+
         <dependency>
           <groupId>com.solutechconsulting.media</groupId>
-          <artifactId>service-mock</artifactId>
+          <artifactId>sample-database</artifactId>
           <version>${project.version}</version>
           <scope>test</scope>
         </dependency>
@@ -143,6 +168,7 @@
         </dependency>
       </dependencies>
     </profile>
+
     <profile>
       <id>native</id>
       <activation>

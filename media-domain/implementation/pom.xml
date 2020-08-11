@@ -37,6 +37,7 @@
 
   <modules>
     <module>sample-data</module>
+    <module>sample-database</module>
     <module>database-init</module>
     <module>mock</module>
     <module>jpa</module>

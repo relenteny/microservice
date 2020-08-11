@@ -36,10 +36,13 @@ With Java and Maven installed, building the application follows the typical Mave
 
 There is an order in which the projects must be built:
 
-* The project contains two implementations of the business service interface. Building the project requires selecting the implementation. Start in at projects' the top-level and execute one of the following Maven commands:
-  * `mvn clean install -Dservice.type=mock` (H2 or in memory data)
-  * `mvn clean install` (PostgreSQL required)
-* As described above, `media-server` contains two server implementations. To run the servers using the Quarkus `dev` mode, execute `mvn compile quarkus:dev "-Dservice.type=mock"` in either the `rest` or `grpc` directories. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server listens on port 9000.
+* The project contains two implementations of the business service interface. The primary implementation uses JPA as its data store. All standard Quarkus profiles use this service implementation.
+* In addition to the standard implementation, there's a mock implementation that does not require a database connection. This can be used with any Quarkus profile. However, a primary intent for use of the mock implementation is to build a native version without requiring a database connection. Including the mock implementation in the build is done by specifying the customer-define Quarkus `mock` profile.
+  * `mvn clean install -Dquarkus.profile=mock`
+* When using Quarkus' `dev` mode, there are multiple configurations supported:
+  * `mvn compile quarkus:dev -Dquarkus.profile=dev` (JPA service implementation using H2 database with sample data)
+  * `mvn compile quarkus:dev -Dquarkus.profile=mock` (mock service implementation with sample data without a database)
+* All configurations work for either the `rest` or `grpc` services. If all goes well, upon completion, the server will be running and listening on port 8080. For the gRPC services, gRPC server listens on port 9000.
 * The application's "production" configuration assumes a connection to PostgreSQL is available, and the sample data has been loaded in PostgreSQL.
 * If a PostgreSQL environment is available, the the database can be loaded with sample data using the uber jar created in the `media-domain/implementation/database-init` module. Review the application.properties. Change them or use one of the Quarkus properties override mechanisms to load a specific instance of PostgreSQL.
 

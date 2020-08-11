@@ -20,19 +20,20 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package com.solutechconsulting.media.service.mock;
+package com.solutechconsulting.media.service.mock.jpa;
 
 import com.solutechconsulting.media.service.MediaService;
+import com.solutechconsulting.media.service.jpa.JpaMediaService;
+import com.solutechconsulting.media.test.MediaServiceTestBase;
 import io.quarkus.test.junit.QuarkusTest;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @QuarkusTest
-public class TestMockMediaService extends MediaServiceTestBase {
+public class TestSampleDatabaseLoader extends MediaServiceTestBase {
 
   @Inject
-  @Named(MockMediaService.SERVICE_NAME)
+  @Named(JpaMediaService.SERVICE_NAME)
   MediaService mediaService;
 
   public MediaService getMediaService() {
@@ -41,6 +42,6 @@ public class TestMockMediaService extends MediaServiceTestBase {
 
   @Override
   public String getServiceClassname() {
-    return MockMediaService.class.getName();
+    return JpaMediaService.class.getName();
   }
 }

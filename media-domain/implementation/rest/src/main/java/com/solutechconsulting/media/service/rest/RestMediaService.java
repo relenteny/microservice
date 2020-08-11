@@ -32,9 +32,7 @@ import com.solutechconsulting.media.service.AbstractMediaService;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.IOException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Priority;
@@ -42,11 +40,13 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.interceptor.Interceptor;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.sse.SseEventSource;
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * a RESTful {@link com.solutechconsulting.media.service.MediaService} implementation intended for
@@ -54,9 +54,9 @@ import java.io.IOException;
  * RestMediaServiceStreamConfiguration}.
  */
 @ApplicationScoped
-@Named(RestMediaService.SERVICE_NAME)
 @Alternative
-@Priority(10)
+@Priority(Interceptor.Priority.APPLICATION - 10)
+@Named(RestMediaService.SERVICE_NAME)
 @SuppressWarnings("CdiInjectionPointsInspection")
 public class RestMediaService extends AbstractMediaService {
 

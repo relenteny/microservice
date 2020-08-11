@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 @ActivateRequestContext
-@Named(JpaMediaService.SERVICE_NAME)
 @Alternative
 @Priority(Interceptor.Priority.APPLICATION)
+@Named(JpaMediaService.SERVICE_NAME)
 public class JpaMediaService extends AbstractMediaService {
 
   public static final String SERVICE_NAME = "JpaMediaService";

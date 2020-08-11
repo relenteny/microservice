@@ -24,7 +24,7 @@ package com.solutechconsulting.media.server.grpc;
 
 import com.solutechconsulting.media.service.MediaService;
 import com.solutechconsulting.media.service.grpc.GrpcMediaService;
-import com.solutechconsulting.media.service.mock.MediaServiceTestBase;
+import com.solutechconsulting.media.test.MediaServiceTestBase;
 import io.quarkus.test.junit.QuarkusTest;
 import javax.inject.Inject;
 import javax.inject.Named;
