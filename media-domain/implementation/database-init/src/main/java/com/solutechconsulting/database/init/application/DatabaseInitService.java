@@ -25,7 +25,7 @@ package com.solutechconsulting.database.init.application;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.internal.output.InfoOutput;
+import org.flywaydb.core.api.output.InfoResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +36,13 @@ import org.slf4j.LoggerFactory;
 public class DatabaseInitService {
 
   @Inject
-  Flyway flyway;
+  private Flyway flyway;
 
   public void checkMigration() {
     Logger logger = LoggerFactory.getLogger(this.getClass());
 
     logger.info("Flyway migration complete:");
-    InfoOutput infoOutput = flyway.info().getInfoOutput();
+    InfoResult infoOutput = flyway.info().getInfoResult();
     logger.info("   Flyway version:    {}", infoOutput.flywayVersion);
     logger.info("   Schema version:    {}", infoOutput.schemaVersion);
     logger.info("");
