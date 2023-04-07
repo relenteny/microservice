@@ -19,8 +19,18 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-%test.quarkus.datasource.db-kind=h2
-%test.quarkus.datasource.jdbc.url=jdbc:h2:mem:media
-%test.quarkus.hibernate-orm.database.default-schema=public
-%test.quarkus.hibernate-orm.database.generation=drop-and-create
-%test.quarkus.log.category."com.solutechconsulting".level=DEBUG
+mediaservice:
+  rest:
+    url:
+      host: localhost
+    path:
+      common:
+        stream: /stream
+        search: /sch
+        audio:
+          tracks: /trx
+        shows:
+          base: /tv
+          series: /series
+    stream:
+      end: EOS

@@ -55,7 +55,7 @@ public class DatabaseInitService {
       logger.info("      State:          {}", migrationOutput.state);
       logger.info("      Category:       {}", migrationOutput.category);
       logger.info("      DB Users:       {}", migrationOutput.installedBy);
-      logger.info("      Install on:     {}", migrationOutput.installedOn);
+      logger.info("      Install on:     {}", migrationOutput.installedOnUTC);
       logger.info("      Execution time: {}", migrationOutput.executionTime);
       logger.info("      Type:           {}", migrationOutput.type);
       logger.info("");

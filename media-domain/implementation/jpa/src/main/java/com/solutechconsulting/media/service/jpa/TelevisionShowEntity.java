@@ -42,7 +42,6 @@ import javax.persistence.Transient;
 public class TelevisionShowEntity extends MediaEntity {
 
   private String seriesTitle;
-  private Integer year;
   private Integer season;
   private Integer episode;
   private String contentRating;
@@ -104,15 +103,6 @@ public class TelevisionShowEntity extends MediaEntity {
 
   public void setSeriesTitle(String seriesTitle) {
     this.seriesTitle = seriesTitle;
-  }
-
-  @Column(name = "year")
-  public Integer getYear() {
-    return year;
-  }
-
-  public void setYear(Integer year) {
-    this.year = year;
   }
 
   @Column(name = "season")

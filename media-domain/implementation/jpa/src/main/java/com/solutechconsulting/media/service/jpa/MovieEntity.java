@@ -43,7 +43,6 @@ import javax.persistence.Transient;
 public class MovieEntity extends MediaEntity {
 
   private String studio;
-  private Integer year;
   private String contentRating;
   private Double criticsRating;
   private String summary;
@@ -104,15 +103,6 @@ public class MovieEntity extends MediaEntity {
 
   public void setStudio(String studio) {
     this.studio = studio;
-  }
-
-  @Column(name = "year")
-  public Integer getYear() {
-    return year;
-  }
-
-  public void setYear(Integer year) {
-    this.year = year;
   }
 
   @Column(name = "critics_rating")

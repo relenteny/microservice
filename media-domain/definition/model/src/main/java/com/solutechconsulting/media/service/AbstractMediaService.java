@@ -63,6 +63,12 @@ public abstract class AbstractMediaService implements MediaService {
   private Timer searchTelevisionShowsTimer;
   private Timer getEpisodesTimer;
   private Timer getSeriesTimer;
+  private MetricRegistry metricRegistry;
+
+  @Inject
+  public void setMetricRegistry(@RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+    this.metricRegistry = metricRegistry;
+  }
 
   @Override
   public Flowable<Movie> getMovies() {
@@ -208,13 +214,9 @@ public abstract class AbstractMediaService implements MediaService {
    * Creates implementation specific metrics. This pattern supports establishing common metrics
    * across any implementation of MediaService choosing to extend from this abstract class. It
    * provides consistency in metrics naming and documentation.
-   *
-   * @param metricRegistry the application metrics registry
    */
   @PostConstruct
-  @Inject
-  public void initialize(
-      @RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+  public void initialize() {
     logger.debug("Initializing service metrics...");
 
     String metricsPrefix = getMetricsPrefix();

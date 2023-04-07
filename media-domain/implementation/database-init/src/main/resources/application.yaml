@@ -19,10 +19,15 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-mediaservice.rest.url.host=localhost
-mediaservice.rest.path.common.stream=/stream
-mediaservice.rest.path.common.search=/sch
-mediaservice.rest.path.audio.tracks=/trx
-mediaservice.rest.path.shows.base=/tv
-mediaservice.rest.path.shows.series=/series
-mediaservice.rest.stream.end=EOS
+# PostgreSQL admin datasource
+quarkus:
+  datasource:
+    db-kind: postgresql
+    jdbc:
+      url: jdbc:postgresql://local.k8s.solutechconsulting.com:30432/postgres
+    username: postgres
+    password: postgres
+  flyway:
+    migrate-at-start: true
+    baseline-on-migrate: true
+    locations: db/migration,com/solutechconsulting/database/init/flyway

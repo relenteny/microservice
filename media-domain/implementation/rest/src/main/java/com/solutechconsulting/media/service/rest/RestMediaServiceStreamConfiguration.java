@@ -22,11 +22,10 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import io.quarkus.arc.config.ConfigProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperties;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ConfigProperties(prefix = "mediaservice.rest.stream")
-@SuppressWarnings("squid:S1075")
 public interface RestMediaServiceStreamConfiguration {
 
   @ConfigProperty(name = "end", defaultValue = "END_OF_STREAM")

@@ -36,6 +36,7 @@ public class MediaEntity {
 
   private String id;
   private String title;
+  private Integer year;
 
   @Id
   @Column(name = "id")
@@ -54,5 +55,14 @@ public class MediaEntity {
 
   public void setTitle(String title) {
     this.title = title;
+  }
+
+  @Column(name = "year_released")
+  public Integer getYear() {
+    return year;
+  }
+
+  public void setYear(Integer year) {
+    this.year = year;
   }
 }

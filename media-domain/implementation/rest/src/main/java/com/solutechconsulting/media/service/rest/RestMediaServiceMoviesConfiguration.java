@@ -22,11 +22,10 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import io.quarkus.arc.config.ConfigProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperties;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ConfigProperties(prefix = "mediaservice.rest.path.movies")
-@SuppressWarnings("squid:S1075")
 public interface RestMediaServiceMoviesConfiguration {
 
   @ConfigProperty(defaultValue = "/movies")

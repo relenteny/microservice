@@ -19,11 +19,14 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-# PostgreSQL admin datasource
-quarkus.datasource.db-kind=postgresql
-quarkus.datasource.jdbc.url=jdbc:postgresql://local.k8s.solutechconsulting.com:30432/postgres
-quarkus.datasource.username=postgres
-quarkus.datasource.password=postgres
-quarkus.flyway.migrate-at-start=true
-quarkus.flyway.baseline-on-migrate=true
-quarkus.flyway.locations=db/migration,com/solutechconsulting/database/init/flyway
+"%test":
+  quarkus:
+    datasource:
+      db-kind: h2
+      jdbc.url: jdbc:h2:mem:media
+    hibernate-orm:
+      database:
+        default-schema: public
+      generation: drop-and-create
+    log:
+      "category.com.solutechconsulting.level": DEBUG

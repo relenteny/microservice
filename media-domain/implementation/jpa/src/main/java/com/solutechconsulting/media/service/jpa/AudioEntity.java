@@ -45,7 +45,6 @@ public class AudioEntity extends MediaEntity {
   private String artist;
   private Integer trackNumber;
   private Duration duration;
-  private Integer year;
 
   public AudioEntity() {
   }
@@ -123,14 +122,5 @@ public class AudioEntity extends MediaEntity {
 
   public void setDuration(Duration duration) {
     this.duration = duration;
-  }
-
-  @Column(name = "year")
-  public Integer getYear() {
-    return year;
-  }
-
-  public void setYear(Integer year) {
-    this.year = year;
   }
 }

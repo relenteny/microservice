@@ -19,32 +19,64 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
 #
-%prod.quarkus.datasource.db-kind=postgresql
-%prod.quarkus.datasource.jdbc.url=jdbc:postgresql://local.k8s.solutechconsulting.com:30432/postgres
-%prod.quarkus.datasource.username=media-service
-%prod.quarkus.datasource.password=media-service
-%prod.quarkus.datasource.enable-metrics=true
-%prod.quarkus.hibernate-orm.database.default-schema=media
-%prod.quarkus.grpc.server.enable-reflection-service=true
+"%prod":
+  quarkus:
+    datasource:
+      db-kind: postgresql
+      jdbc:
+        url: jdbc:postgresql://local.k8s.solutechconsulting.com:30432/postgres
+      username: media-service
+      password: media-service
+      enable-metrics: true
+    hibernate-orm:
+      database:
+        default-schema: media
 ####################################################################################################
 # Dev profile configuration
 ####################################################################################################
-%dev.quarkus.datasource.db-kind=h2
-%dev.quarkus.datasource.jdbc.url=jdbc:h2:mem:media
-%dev.quarkus.hibernate-orm.database.generation=drop-and-create
-%dev.quarkus.log.category."com.solutechconsulting".level=DEBUG
+"%dev":
+  quarkus:
+    datasource:
+      db-kind: h2
+      jdbc:
+        url: jdbc:h2:mem:media
+    hibernate-orm:
+      database:
+        generation: drop-and-create
+    log:
+      category:
+      "com.solutechconsulting":
+        level: DEBUG
 ####################################################################################################
 # Mock profile configuration
 ####################################################################################################
-%mock.quarkus.native.additional-build-args=-H:ResourceConfigurationFiles=resources-config.json
-%mock.quarkus.grpc.server.enable-reflection-service=true
-%mock.quarkus.log.category."com.solutechconsulting".level=DEBUG
+"%mock":
+  quarkus:
+    native:
+      additional-build-args: -H:ResourceConfigurationFiles=resources-config.json
+  log:
+    category:
+      "com.solutechconsulting":
+        level: DEBUG
 ####################################################################################################
 # Test profile configuration
 ####################################################################################################
-%test.quarkus.datasource.db-kind=h2
-%test.quarkus.datasource.jdbc.url=jdbc:h2:mem:media
-%test.quarkus.hibernate-orm.database.generation=drop-and-create
-%test.quarkus.log.category."com.solutechconsulting".level=DEBUG
-# gGRPC service configuration
-%test.quarkus.grpc.clients.mediaservice.host=localhost
+"%test":
+  quarkus:
+    datasource:
+      db-kind: h2
+      jdbc:
+        url: jdbc:h2:mem:media
+    hibernate-orm:
+      database:
+        generation: drop-and-create
+    log:
+      category:
+        "com.solutechconsulting":
+          level: DEBUG
+# REST service configuration
+    mediaservice:
+      rest:
+        url:
+          host: localhost
+          port: 8081
