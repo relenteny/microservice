@@ -32,6 +32,7 @@ import com.solutechconsulting.media.model.protobuf.MoviesProto;
 import com.solutechconsulting.media.model.protobuf.MoviesProto.GrpcMovie;
 import com.solutechconsulting.media.model.protobuf.MutinyMoviesGrpc;
 import com.solutechconsulting.media.service.MediaService;
+import io.quarkus.grpc.GrpcService;
 import io.reactivex.Flowable;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.converters.multi.MultiRxConverters;
@@ -41,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.transaction.Transactional;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetadataBuilder;
 import org.eclipse.microprofile.metrics.MetricRegistry;
@@ -52,10 +53,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides the gRPC implementation of the {@link MediaService} movies methods as defined in {@link
- * MoviesGrpc}. The class extends and leverages the generated Mutiny base gRPC class.
+ * Provides the gRPC implementation of the {@link MediaService} movies methods as defined in {@link MoviesGrpc}. The class extends
+ * and leverages the generated Mutiny base gRPC class.
  */
-@Singleton
+@GrpcService
 public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
 
   private static final Logger logger = LoggerFactory.getLogger(MoviesGrpcService.class.getName());
@@ -70,6 +71,7 @@ public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
   private Timer searchMoviesTimer;
 
   @Override
+  @Transactional
   public Multi<GrpcMovie> get(Empty request) {
     logger.debug("Invoking get...");
     return convertMovieResults(mediaService.getMovies(), getMoviesTimer.time())
@@ -77,6 +79,7 @@ public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
   }
 
   @Override
+  @Transactional
   public Multi<GrpcMovie> search(CommonProto.SearchRequest request) {
     logger.debug("Invoking search... Search text: {}", request.getSearchText());
     return convertMovieResults(mediaService.searchMovies(request.getSearchText()),
@@ -124,9 +127,8 @@ public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
   }
 
   /**
-   * Creates implementation specific metrics. This pattern supports establishing common metrics
-   * across any implementation of MediaService choosing to extend from this abstract class. It
-   * provides consistency in metrics naming and documentation.
+   * Creates implementation specific metrics. This pattern supports establishing common metrics across any implementation of
+   * MediaService choosing to extend from this abstract class. It provides consistency in metrics naming and documentation.
    */
   public void initializeMetrics() {
     logger.debug("Initializing service metrics...");
@@ -151,18 +153,13 @@ public class MoviesGrpcService extends MutinyMoviesGrpc.MoviesImplBase {
     logger.debug("Service metrics initialized.");
   }
 
-  /**
-   * Inject the registry for use by the services. The metric registry is available at the post
-   * construct lifecycle event. The registry is passed to each service implementation to register
-   * and log metrics.
-   *
-   * @param metricRegistry the application metric registry
-   */
-  @PostConstruct
   @Inject
-  public void initialize(
-      @RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+  public void setMetricRegistry(@RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+  }
+
+  @PostConstruct
+  public void initialize() {
     initializeMetrics();
   }
 }

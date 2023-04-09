@@ -42,7 +42,7 @@ import com.solutechconsulting.media.model.protobuf.TelevisionShowsProto.GrpcTele
 import com.solutechconsulting.media.service.AbstractMediaService;
 import io.grpc.Channel;
 import io.grpc.stub.StreamObserver;
-import io.quarkus.grpc.runtime.annotations.GrpcService;
+import io.quarkus.grpc.GrpcClient;
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
@@ -60,10 +60,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A gRPC {@link com.solutechconsulting.media.service.MediaService} implementation intended for use
- * by server-side or other Java client applications. The implementation leverages the generated
- * Vert.x-based gRPC/protobuf classes available in the com.solutechconsulting.media:domain-protobuf
- * module. The service is configured via <code>quarkus.grpc.clients</code> properties.
+ * A gRPC {@link com.solutechconsulting.media.service.MediaService} implementation intended for use by server-side or other Java
+ * client applications. The implementation leverages the generated Vert.x-based gRPC/protobuf classes available in the
+ * com.solutechconsulting.media:domain-protobuf module. The service is configured via <code>quarkus.grpc.clients</code> properties.
  */
 @ApplicationScoped
 @Alternative
@@ -76,7 +75,7 @@ public class GrpcMediaService extends AbstractMediaService {
   private final Logger logger = LoggerFactory.getLogger(GrpcMediaService.class.getName());
 
   @Inject
-  @GrpcService("mediaservice")
+  @GrpcClient("mediaservice")
   Channel channel;
 
   @Override
@@ -148,13 +147,13 @@ public class GrpcMediaService extends AbstractMediaService {
     return observable.toFlowable(BackpressureStrategy.BUFFER).map(grpcMovie -> {
       ImmutableMovie.Builder builder = ImmutableMovie.builder();
       builder.id(grpcMovie.getId()).title(grpcMovie.getTitle()).studio(grpcMovie.getStudio()).year(
-          Optional.of(grpcMovie.getYear())).criticsRating(Optional.of(grpcMovie.getCriticsRating()))
+              Optional.of(grpcMovie.getYear())).criticsRating(Optional.of(grpcMovie.getCriticsRating()))
           .summary(
               grpcMovie.getSummary()).genres(
-          grpcMovie.getGenres()).tagline(grpcMovie.getTagline()).duration(
-          Duration.ofSeconds(grpcMovie.getDuration().getSeconds(),
-              grpcMovie.getDuration().getNanos())).directors(grpcMovie.getDirectors()).roles(
-          grpcMovie.getRoles()).audienceRating(Optional.of(grpcMovie.getAudienceRating()))
+              grpcMovie.getGenres()).tagline(grpcMovie.getTagline()).duration(
+              Duration.ofSeconds(grpcMovie.getDuration().getSeconds(),
+                  grpcMovie.getDuration().getNanos())).directors(grpcMovie.getDirectors()).roles(
+              grpcMovie.getRoles()).audienceRating(Optional.of(grpcMovie.getAudienceRating()))
           .contentRating(
               grpcMovie.getContentRating());
 

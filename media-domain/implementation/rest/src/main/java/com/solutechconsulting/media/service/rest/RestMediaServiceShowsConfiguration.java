@@ -22,15 +22,18 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.path.shows")
+@ConfigMapping(prefix = "mediaservice.rest.path.shows")
 public interface RestMediaServiceShowsConfiguration {
 
-  @ConfigProperty(defaultValue = "/shows")
+  @WithName("base")
+  @WithDefault("/shows")
   String getBase();
 
-  @ConfigProperty(defaultValue = "/series")
+  @WithName("series")
+  @WithDefault("/series")
   String getSeries();
 }

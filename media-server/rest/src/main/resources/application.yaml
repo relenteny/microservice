@@ -75,8 +75,8 @@
         "com.solutechconsulting":
           level: DEBUG
 # REST service configuration
-    mediaservice:
-      rest:
-        url:
-          host: localhost
-          port: 8081
+  mediaservice:
+    rest:
+      url:
+        host: localhost
+        port: 8081

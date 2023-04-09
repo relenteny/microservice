@@ -31,6 +31,7 @@ import com.solutechconsulting.media.model.protobuf.MutinyTelevisionShowsGrpc;
 import com.solutechconsulting.media.model.protobuf.TelevisionShowsProto;
 import com.solutechconsulting.media.model.protobuf.TelevisionShowsProto.GrpcTelevisionShow;
 import com.solutechconsulting.media.service.MediaService;
+import io.quarkus.grpc.GrpcService;
 import io.reactivex.Flowable;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.converters.multi.MultiRxConverters;
@@ -40,7 +41,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.transaction.Transactional;
 import org.eclipse.microprofile.metrics.Metadata;
 import org.eclipse.microprofile.metrics.MetadataBuilder;
 import org.eclipse.microprofile.metrics.MetricRegistry;
@@ -51,15 +52,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides the gRPC implementation of the {@link MediaService} television shoes methods as defined
- * in {@link com.solutechconsulting.media.model.protobuf.TelevisionShowsGrpc}. The class extends and
- * leverages the generated Mutiny base gRPC class.
+ * Provides the gRPC implementation of the {@link MediaService} television shoes methods as defined in
+ * {@link com.solutechconsulting.media.model.protobuf.TelevisionShowsGrpc}. The class extends and leverages the generated Mutiny
+ * base gRPC class.
  */
-@Singleton
+@GrpcService
 public class TelevisionShowsGrpcService extends MutinyTelevisionShowsGrpc.TelevisionShowsImplBase {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(TelevisionShowsGrpcService.class.getName());
+  private static final Logger logger = LoggerFactory.getLogger(TelevisionShowsGrpcService.class.getName());
 
   @Inject
   MediaService mediaService;
@@ -73,13 +73,15 @@ public class TelevisionShowsGrpcService extends MutinyTelevisionShowsGrpc.Televi
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
   @Override
+  @Transactional
   public Multi<GrpcTelevisionShow> get(Empty request) {
     logger.debug("Invoking get...");
-    return convertTelevisionShowResults(mediaService.getTelevisionShows(),
-        getTelevisionShowsTimer.time()).runSubscriptionOn(executorService);
+    return convertTelevisionShowResults(mediaService.getTelevisionShows(), getTelevisionShowsTimer.time()).runSubscriptionOn(
+        executorService);
   }
 
   @Override
+  @Transactional
   public Multi<GrpcTelevisionShow> search(CommonProto.SearchRequest request) {
     logger.debug("Invoking search... Search text: {}", request.getSearchText());
     return convertTelevisionShowResults(mediaService.searchTelevisionShows(request.getSearchText()),
@@ -87,122 +89,95 @@ public class TelevisionShowsGrpcService extends MutinyTelevisionShowsGrpc.Televi
   }
 
   @Override
+  @Transactional
   public Multi<GrpcTelevisionShow> episodes(TelevisionShowsProto.EpisodesRequest request) {
-    logger.debug("Invoking episodes... Series: {}, Episode: {}", request.getSeriesTitle(),
-        request.getSeason());
-    return convertTelevisionShowResults(
-        mediaService.getEpisodes(request.getSeriesTitle(), request.getSeason()),
+    logger.debug("Invoking episodes... Series: {}, Episode: {}", request.getSeriesTitle(), request.getSeason());
+    return convertTelevisionShowResults(mediaService.getEpisodes(request.getSeriesTitle(), request.getSeason()),
         getEpisodesTimer.time()).runSubscriptionOn(executorService);
   }
 
   @Override
+  @Transactional
   public Multi<GrpcTelevisionShow> series(TelevisionShowsProto.SeriesRequest request) {
     logger.debug("Invoking series... Series: {}", request.getSeriesTitle());
-    return convertTelevisionShowResults(mediaService.getSeries(request.getSeriesTitle()),
-        getSeriesTimer.time()).runSubscriptionOn(executorService);
+    return convertTelevisionShowResults(mediaService.getSeries(request.getSeriesTitle()), getSeriesTimer.time()).runSubscriptionOn(
+        executorService);
   }
 
-  protected Multi<GrpcTelevisionShow> convertTelevisionShowResults(
-      Flowable<TelevisionShow> flowable,
-      Timer.Context timerContext) {
+  protected Multi<GrpcTelevisionShow> convertTelevisionShowResults(Flowable<TelevisionShow> flowable, Timer.Context timerContext) {
     return Multi.createFrom()
-        .converter(MultiRxConverters.fromFlowable(), flowable.map(
-            this::mapTelevisionShow).doOnError(throwable -> {
+        .converter(MultiRxConverters.fromFlowable(), flowable.map(this::mapTelevisionShow).doOnError(throwable -> {
           logger.error("An error occurred. Terminating stream.", throwable);
           timerContext.stop();
         }).doOnComplete(() -> {
-              logger.debug("Television shows stream complete.");
-              timerContext.stop();
-            }
-        )).runSubscriptionOn(executorService);
+          logger.debug("Television shows stream complete.");
+          timerContext.stop();
+        })).runSubscriptionOn(executorService);
   }
 
   protected GrpcTelevisionShow mapTelevisionShow(TelevisionShow televisionShow) {
-    TelevisionShowsProto.GrpcTelevisionShow.Builder builder =
-        TelevisionShowsProto.GrpcTelevisionShow.newBuilder().setId(televisionShow.getId())
-            .setTitle(
-                televisionShow.getTitle()).setSeriesTitle(
-            televisionShow.getSeriesTitle()).setSeason(
-            televisionShow.getSeason()).setEpisode(
-            televisionShow.getEpisode()).setContentRating(
-            televisionShow.getContentRating()).setSummary(
-            televisionShow.getSummary()).setStudio(televisionShow.getStudio()).setDirectors(
-            televisionShow.getDirectors()).setWriters(televisionShow.getWriters());
+    TelevisionShowsProto.GrpcTelevisionShow.Builder builder = TelevisionShowsProto.GrpcTelevisionShow.newBuilder()
+        .setId(televisionShow.getId()).setTitle(televisionShow.getTitle()).setSeriesTitle(televisionShow.getSeriesTitle())
+        .setSeason(televisionShow.getSeason()).setEpisode(televisionShow.getEpisode())
+        .setContentRating(televisionShow.getContentRating()).setSummary(televisionShow.getSummary())
+        .setStudio(televisionShow.getStudio()).setDirectors(televisionShow.getDirectors()).setWriters(televisionShow.getWriters());
 
     televisionShow.getRating().ifPresent(builder::setRating);
     televisionShow.getYear().ifPresent(builder::setYear);
 
     televisionShow.getOriginallyAired().ifPresent(aired -> {
       Instant instant = aired.atStartOfDay().toInstant(ZoneOffset.UTC);
-      builder.setOriginallyAired(
-          Timestamp.newBuilder().setSeconds(instant.getEpochSecond()).setNanos(
-              instant.getNano()));
+      builder.setOriginallyAired(Timestamp.newBuilder().setSeconds(instant.getEpochSecond()).setNanos(instant.getNano()));
     });
 
-    builder.setDuration(
-        Duration.newBuilder().setSeconds(televisionShow.getDuration().getSeconds()).setNanos(
-            televisionShow.getDuration().getNano()));
+    builder.setDuration(Duration.newBuilder().setSeconds(televisionShow.getDuration().getSeconds())
+        .setNanos(televisionShow.getDuration().getNano()));
 
     return builder.build();
   }
 
   /**
-   * Creates implementation specific metrics. This pattern supports establishing common metrics
-   * across any implementation of MediaService choosing to extend from this abstract class. It
-   * provides consistency in metrics naming and documentation.
+   * Creates implementation specific metrics. This pattern supports establishing common metrics across any implementation of
+   * MediaService choosing to extend from this abstract class. It provides consistency in metrics naming and documentation.
    */
   public void initializeMetrics() {
     logger.debug("Initializing service metrics...");
 
     String metricsPrefix = TelevisionShowsGrpcService.class.getName();
-    String name =
-        metricsPrefix + '.' + MediaService.MetricsDefinitions.GetTelevisionShows.TIMER_NAME;
-    Metadata metadata =
-        new MetadataBuilder().withName(name).withDisplayName(name).withType(
-            MetricType.TIMER).withDescription(
-            MediaService.MetricsDefinitions.GetTelevisionShows.TIMER_DESCRIPTION).build();
+    String name = metricsPrefix + '.' + MediaService.MetricsDefinitions.GetTelevisionShows.TIMER_NAME;
+    Metadata metadata = new MetadataBuilder().withName(name).withDisplayName(name).withType(MetricType.TIMER)
+        .withDescription(MediaService.MetricsDefinitions.GetTelevisionShows.TIMER_DESCRIPTION).build();
 
     getTelevisionShowsTimer = metricRegistry.timer(metadata);
 
     name = metricsPrefix + '.' + MediaService.MetricsDefinitions.SearchTelevisionShows.TIMER_NAME;
-    metadata =
-        new MetadataBuilder().withName(name).withDisplayName(name).withType(
-            MetricType.TIMER).withDescription(
-            MediaService.MetricsDefinitions.SearchTelevisionShows.TIMER_DESCRIPTION).build();
+    metadata = new MetadataBuilder().withName(name).withDisplayName(name).withType(MetricType.TIMER)
+        .withDescription(MediaService.MetricsDefinitions.SearchTelevisionShows.TIMER_DESCRIPTION).build();
 
     searchTelevisionShowsTimer = metricRegistry.timer(metadata);
 
     name = metricsPrefix + '.' + MediaService.MetricsDefinitions.GetEpisodes.TIMER_NAME;
-    metadata =
-        new MetadataBuilder().withName(name).withDisplayName(name).withType(
-            MetricType.TIMER).withDescription(
-            MediaService.MetricsDefinitions.GetEpisodes.TIMER_DESCRIPTION).build();
+    metadata = new MetadataBuilder().withName(name).withDisplayName(name).withType(MetricType.TIMER)
+        .withDescription(MediaService.MetricsDefinitions.GetEpisodes.TIMER_DESCRIPTION).build();
 
     getEpisodesTimer = metricRegistry.timer(metadata);
 
     name = metricsPrefix + '.' + MediaService.MetricsDefinitions.GetSeries.TIMER_NAME;
-    metadata =
-        new MetadataBuilder().withName(name).withDisplayName(name).withType(
-            MetricType.TIMER).withDescription(
-            MediaService.MetricsDefinitions.GetSeries.TIMER_DESCRIPTION).build();
+    metadata = new MetadataBuilder().withName(name).withDisplayName(name).withType(MetricType.TIMER)
+        .withDescription(MediaService.MetricsDefinitions.GetSeries.TIMER_DESCRIPTION).build();
 
     getSeriesTimer = metricRegistry.timer(metadata);
 
     logger.debug("Service metrics initialized.");
   }
 
-  /**
-   * Inject the registry for use by the services. The metric registry is available at the post
-   * construct lifecycle event. The registry is passed to each service implementation to register
-   * and log metrics.
-   *
-   * @param metricRegistry the application metric registry
-   */
-  @PostConstruct
   @Inject
-  public void initialize(
-      @RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
+  public void setMetricRegistry(@RegistryType(type = MetricRegistry.Type.APPLICATION) MetricRegistry metricRegistry) {
     this.metricRegistry = metricRegistry;
+  }
+
+  @PostConstruct
+  public void initialize() {
     initializeMetrics();
   }
 }

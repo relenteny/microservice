@@ -23,10 +23,13 @@
   quarkus:
     datasource:
       db-kind: h2
-      jdbc.url: jdbc:h2:mem:media
+      jdbc:
+        url: jdbc:h2:mem:media
     hibernate-orm:
       database:
         default-schema: public
-      generation: drop-and-create
+        generation: drop-and-create
     log:
-      "category.com.solutechconsulting.level": DEBUG
+      category:
+        "com.solutechconsulting":
+          level: DEBUG

@@ -22,15 +22,18 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.stream")
+@ConfigMapping(prefix = "mediaservice.rest.stream")
 public interface RestMediaServiceStreamConfiguration {
 
-  @ConfigProperty(name = "end", defaultValue = "END_OF_STREAM")
+  @WithName("end")
+  @WithDefault("END_OF_STREAM")
   String getEndOfStreamMarker();
 
-  @ConfigProperty(name = "error", defaultValue = "ERROR_MARKER")
+  @WithName("error")
+  @WithDefault("ERROR_MARKER")
   String getErrorMarker();
 }

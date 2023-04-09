@@ -22,15 +22,18 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.path.audio")
+@ConfigMapping(prefix = "mediaservice.rest.path.audio")
 public interface RestMediaServiceAudioConfiguration {
 
-  @ConfigProperty(defaultValue = "/audio")
+  @WithName("base")
+  @WithDefault("/audio")
   String getBase();
 
-  @ConfigProperty(defaultValue = "/tracks")
+  @WithName("tracks")
+  @WithDefault("/tracks")
   String getTracks();
 }

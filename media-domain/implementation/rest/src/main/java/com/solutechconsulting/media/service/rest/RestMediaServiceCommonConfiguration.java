@@ -22,18 +22,22 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.path.common")
+@ConfigMapping(prefix = "mediaservice.rest.path.common")
 public interface RestMediaServiceCommonConfiguration {
 
-  @ConfigProperty(defaultValue = "/media")
+  @WithName("media")
+  @WithDefault("/media")
   String getMediaRoot();
 
-  @ConfigProperty(defaultValue = "/stream")
+  @WithName("stream")
+  @WithDefault("/stream")
   String getStream();
 
-  @ConfigProperty(defaultValue = "/search")
+  @WithName("search")
+  @WithDefault("/search")
   String getSearch();
 }

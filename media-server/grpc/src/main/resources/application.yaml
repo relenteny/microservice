@@ -74,8 +74,11 @@
       category:
         "com.solutechconsulting":
           level: DEBUG
-    # REST service configuration
+  # gRPC service configuration
     grpc:
+      server:
+        use-separate-server: false
       clients:
         mediaservice:
           host: localhost
+          port: 8081

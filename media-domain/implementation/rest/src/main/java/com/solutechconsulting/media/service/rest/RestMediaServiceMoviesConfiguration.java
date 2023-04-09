@@ -22,12 +22,14 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.path.movies")
+@ConfigMapping(prefix = "mediaservice.rest.path.movies")
 public interface RestMediaServiceMoviesConfiguration {
 
-  @ConfigProperty(defaultValue = "/movies")
+  @WithName("base")
+  @WithDefault("/movies")
   String getBase();
 }

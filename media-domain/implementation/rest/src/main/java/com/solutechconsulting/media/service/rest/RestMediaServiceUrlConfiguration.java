@@ -22,17 +22,21 @@
 
 package com.solutechconsulting.media.service.rest;
 
-import org.eclipse.microprofile.config.inject.ConfigProperties;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.smallrye.config.ConfigMapping;
+import io.smallrye.config.WithDefault;
+import io.smallrye.config.WithName;
 
-@ConfigProperties(prefix = "mediaservice.rest.url")
+@ConfigMapping(prefix = "mediaservice.rest.url")
 public interface RestMediaServiceUrlConfiguration {
 
-  @ConfigProperty(defaultValue = "http")
+  @WithName("protocol")
+  @WithDefault("http")
   String getProtocol();
 
+  @WithName("host")
   String getHost();
 
-  @ConfigProperty(defaultValue = "8888")
+  @WithName("port")
+  @WithDefault("8888")
   int getPort();
 }

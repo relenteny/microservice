@@ -27,10 +27,10 @@ mediaservice:
       common:
         stream: /stream
         search: /sch
-        audio:
-          tracks: /trx
-        shows:
-          base: /tv
-          series: /series
+      audio:
+        tracks: /trx
+      shows:
+        base: /tv
+        series: /series
     stream:
       end: EOS
