@@ -1,0 +1,5 @@
+development:
+  service:
+    enabled: true
+  database:
+    enabled: true

@@ -1,0 +1,6 @@
+# Development Helm Charts
+development:
+  service:
+    enabled: false
+  database:
+    enabled: false

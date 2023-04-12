@@ -1,0 +1,15 @@
+apiVersion: v2
+name: media-application
+description: An application deployment demonstration
+type: application
+version: ${helm.chart.version}
+appVersion: ${helm.application.version}
+dependencies:
+  - name: quarkus-development
+    condition: development.service.enabled
+    version: 1.0.0-0+1.0.0.0
+    repository: ${helm.repository.quarkus.development}
+  - name: postgresql
+    condition: development.database.enabled
+    version: 12.2.7
+    repository: https://charts.bitnami.com/bitnami
