@@ -6,6 +6,7 @@ version: ${helm.chart.version}
 appVersion: ${helm.application.version}
 dependencies:
   - name: quarkus-development
+    alias: devenv
     condition: development.service.enabled
     version: 1.0.0-0+1.0.0.0
     repository: ${helm.repository.quarkus.development}

@@ -26,6 +26,6 @@ source ./functions.sh
 
 # Package and publish Helm Chart
 
-cd ${chart_directory} || bash -c "echo \"Unable to change to ${project.build.directory}/helm.\";exit"
+cd ${chart_directory} || echo "Unable to change to ${project.build.directory}/helm."
 
 publish_chart "true"

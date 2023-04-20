@@ -1,0 +1,3 @@
+devenv:
+  image:
+    repository: ${docker.repository}

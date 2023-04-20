@@ -1,0 +1,15 @@
+{{- if .Values.development.service.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: devenv-ssh
+  labels:
+  {{- include "media-application.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook": pre-install,pre-upgrade
+type: Opaque
+data:
+{{ (.Files.Glob "ssh/*").AsSecrets | indent 2 }}
+{{- end }}

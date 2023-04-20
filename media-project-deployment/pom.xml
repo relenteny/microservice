@@ -130,6 +130,8 @@
               <arguments>
                 <argument>+x</argument>
                 <argument>${project.build.directory}/script/package.sh</argument>
+                <argument>${project.build.directory}/script/deploy.sh</argument>
+                <argument>${project.build.directory}/script/terminal.sh</argument>
               </arguments>
             </configuration>
           </execution>

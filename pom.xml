@@ -33,9 +33,7 @@
 
   <modules>
     <module>media-project-bom</module>
-    <!--
     <module>media-service</module>
-    -->
     <module>media-project-deployment</module>
   </modules>
 

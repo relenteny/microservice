@@ -1,0 +1,16 @@
+{{- if .Values.development.service.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: devenv-env
+  labels:
+  {{- include "media-application.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook": pre-install,pre-upgrade
+data:
+  {{- if (.Values.environment) }}
+    {{ toYaml .Values.environment | indent 2 }}
+  {{- end }}
+{{- end}}

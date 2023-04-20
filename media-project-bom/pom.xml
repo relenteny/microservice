@@ -50,10 +50,13 @@
     <deployment.type>local</deployment.type>
 
     <helm.application.version>${project.version}</helm.application.version>
+    <helm.package.development>true</helm.package.development>
     <helm.chart.name>media-application</helm.chart.name>
-    <helm.namespace>media-application</helm.namespace>
+    <helm.deployment.name>media-application</helm.deployment.name>
+    <helm.namespace>media</helm.namespace>
     <helm.image.pull.policy>Always</helm.image.pull.policy>
-    <helm.repository>http://${local.cluster.domain}/chartmuseum</helm.repository>
+    <helm.repository.url>http://${local.cluster.domain}/chartmuseum</helm.repository.url>
+    <helm.repository.name>local</helm.repository.name>
     <helm.repository.quarkus.development>http://${local.cluster.domain}/chartmuseum</helm.repository.quarkus.development>
   </properties>
 </project>

@@ -22,16 +22,31 @@
 #
 #
 
-project_directory="${project.basedir}"
-project_build_directory="${project.build.directory}"
-chart_directory="${project_build_directory}/helm"
+source ./functions.sh
 
-deployment_type="${deployment.type}"
+development_deployment="false"
 
-helm_repository_name="${helm.repository.name}"
-helm_repository_url="${helm.repository.url}"
-helm_chart_name="${helm.chart.name}"
-helm_application_version="${helm.application.version}"
-helm_namespace="${helm.namespace}"
-helm_deployment_name="${helm.deployment.name}"
-helm_package_development="${helm.package.development}"
+function usage() {
+  echo " "
+  echo "Usage:"
+  echo "   -d deploy development environment"
+}
+
+while getopts "d" opt
+do
+  case $opt in
+    d) development_deployment="true";;
+    *) usage;;
+  esac
+done
+
+
+build_chart_version
+chart_options="-f yaml/local.yaml"
+if [ "${development_deployment}" == "true" ]; then
+    chart_options="-f yaml/development.yaml ${chart_options}"
+fi
+
+helm repo update
+helm upgrade --install ${helm_deployment_name} -n ${helm_namespace} ${helm_repository_name}/${helm_chart_name} \
+             --version ${helm_chart_version} --create-namespace ${chart_options}

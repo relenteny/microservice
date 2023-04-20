@@ -19,19 +19,6 @@
 #   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 #   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 #   DEALINGS IN THE SOFTWARE.
-#
-#
 
-project_directory="${project.basedir}"
-project_build_directory="${project.build.directory}"
-chart_directory="${project_build_directory}/helm"
+kubectl exec --stdin --tty media-application-devenv-0 -n media -- /bin/zsh
 
-deployment_type="${deployment.type}"
-
-helm_repository_name="${helm.repository.name}"
-helm_repository_url="${helm.repository.url}"
-helm_chart_name="${helm.chart.name}"
-helm_application_version="${helm.application.version}"
-helm_namespace="${helm.namespace}"
-helm_deployment_name="${helm.deployment.name}"
-helm_package_development="${helm.package.development}"

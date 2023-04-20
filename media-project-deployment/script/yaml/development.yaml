@@ -1,0 +1,16 @@
+environment:
+  TEST_ENV: "Test development variable."
+
+# Development Helm Charts
+development:
+  service:
+    enabled: true
+  database:
+    enabled: false
+
+devenv:
+  environment: devenv-env
+  git:
+    repo: "git@github.com:relenteny/microservice.git"
+  ssh:
+    secret: devenv-ssh
